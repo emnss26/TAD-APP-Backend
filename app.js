@@ -2,12 +2,14 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+
 const dotenv = require('dotenv');
+dotenv.config();
 
 const PORT = process.env.PORT || 3000;
-const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:5173'];
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:5173', 'https://tad-app-fronend.vercel.app'];
 
-dotenv.config();
+
 //Auth Router
 const authRouter = require('./resources/auth/auth.router');
 
