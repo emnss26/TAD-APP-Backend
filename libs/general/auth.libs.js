@@ -27,9 +27,21 @@ const GetAPSThreeLeggedToken = async (code) => {
         'Authorization': `Basic ${encodedCredentials}`
     }
 
-    const {data} = await axios.post('https://developer.api.autodesk.com/authentication/v2/token', new URLSearchParams(requestdata).toString(),
-        {headers})
+    try {
+        const { data } = await axios.post(
+          'https://developer.api.autodesk.com/authentication/v2/token',
+          new URLSearchParams(requestdata).toString(),
+          { headers }
+        );
         return data.access_token;
+      } catch (error) {
+        console.error("Error fetching token:", error.message);
+        if (error.response) {
+          console.error("Error response data:", error.response.data);
+        }
+        throw error;
+      }
+
 }
 
 module.exports = {
