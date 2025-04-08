@@ -31,8 +31,8 @@ const  GetThreeLegged = async (req, res) => {
         
         res.cookie ('access_token', token, {
             maxAge: 3600000, 
-            httpOnly: false,
-            secure: false,
+            httpOnly: true,
+            secure: true,
             sameSite: 'none',
             path : '/',
         })
@@ -51,8 +51,8 @@ const  GetThreeLegged = async (req, res) => {
 const PostLogout = async (req, res) => {
     try {
         res.clearCookie ('access_token', {
-            httpOnly: false,
-            secure: false,
+            httpOnly: true,
+            secure: true,
             sameSite: 'none',
             path : '/',
         })
