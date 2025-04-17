@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -19,6 +20,9 @@ const generalRouter = require('./resources/general/general.route');
 //Platform Routers
 const bim360Router = require('./resources/bim360/bim360.router');
 const accRouter = require('./resources/acc/acc.router');
+
+//Datamanagement
+const datamanagementRouter = require('./resources/datamanagement/datamanagement.router');
 
 //OpenAI Routers
 const accusersOpenAiRouter = require('./openai/acc/acc.users.openai');
@@ -50,6 +54,17 @@ app.use (cors({
     credentials:true,
 }));
 
+app.use(helmet());
+
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https://trusted.cdn.com'],
+      imgSrc: ["'self'", 'data:', 'https://images.autodesk.com'],
+      connectSrc: ["'self'", 'https://developer.api.autodesk.com'],
+    },
+  }));
+
 app.use(cookieParser());
 
 app.get('/', (req, res) => {
@@ -60,6 +75,7 @@ app.use('/auth', authRouter);
 app.use('/general', generalRouter);
 app.use('/bim360', bim360Router);
 app.use('/acc', accRouter);
+app.use('/datamanagement', datamanagementRouter);
 
 // app.use('/openai/acc/users', accusersOpenAiRouter);
 // app.use('/openai/acc/issues', accissuesOpenAiRouter);       

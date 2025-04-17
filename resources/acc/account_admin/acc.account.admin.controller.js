@@ -16,7 +16,7 @@ const GetProjects = async (req, res) => {
 
     try {
 
-        console.log('Token:', token);
+        //console.log('Token:', token);
 
         const {data: hubsdata} = await axios.get ('https://developer.api.autodesk.com/project/v1/hubs',{
             headers: {
@@ -24,7 +24,7 @@ const GetProjects = async (req, res) => {
             },
         });
 
-        console.log("Hubs", hubsdata);
+        //console.log("Hubs", hubsdata);
 
         const targetHubs = hubsdata.data.filter(hub =>
             authorizedHubs.some(authHub => authHub.id === hub.id)
@@ -38,7 +38,7 @@ const GetProjects = async (req, res) => {
         });
         }
 
-        console.log('Target Hubs:', targetHubs);
+        //console.log('Target Hubs:', targetHubs);
 
         const projectsPromises = targetHubs.map(hub => {
             return axios
