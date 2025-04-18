@@ -60,7 +60,7 @@ const GetIssueAttributeDefinitions = async (projectId, token) => {
     try {
         const { data } = await axios.get(url, { headers });
 
-        console.log ('Issue Attribute Definitions:', data.results[0]);
+        //console.log ('Issue Attribute Definitions:', data.results[0]);
         return data;
     } catch (error) {
         console.error('Error fetching Issue Attributes definition:', error.response?.data || error.message);

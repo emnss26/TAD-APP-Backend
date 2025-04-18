@@ -71,7 +71,7 @@ const GetFederatedModel = async (req, res) => {
       });
     }
 
-    console.log("Found file:", foundFile);
+    //console.log("Found file:", foundFile);
 
     const { data: versions } = await axios.get(
       `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${foundFile.id}/versions`,
