@@ -59,9 +59,9 @@ app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'https://trusted.cdn.com'],
-      imgSrc: ["'self'", 'data:', 'https://images.autodesk.com'],
-      connectSrc: ["'self'", 'https://developer.api.autodesk.com'],
+      scriptSrc: ["'self'", 'https://trusted.cdn.com','https://cdn.derivative.autodesk.com'],
+      imgSrc: ["'self'", 'data:', 'https://images.autodesk.com','https://cdn.derivative.autodesk.com'],
+      connectSrc: ["'self'", 'https://developer.api.autodesk.com','https://cdn.derivative.autodesk.com'],
     },
   }));
 
