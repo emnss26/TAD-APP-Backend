@@ -89,6 +89,10 @@ app.use("/acc", require("./resources/acc/acc.router"));
 app.use("/bim360", require("./resources/bim360/bim360.router"));
 app.use("/datamanagement", require("./resources/datamanagement/datamanagement.router"));
 
+app.get("/", (req, res) => {
+  res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });
+});
+
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
