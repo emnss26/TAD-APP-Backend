@@ -1,31 +1,33 @@
-const { default: axios } = require("axios");
-const { format } = require("morgan");
+const axios = require("axios");
 
-const fetchAllPaginatedResults = async (initialUrl, token) => {
-    
-    //console.log("Fetching paginated results from URL:", initialUrl);
-    //console.log("Using token:", token);
-    
-    let results = [];
-    let nextUrl = initialUrl;
-  
-    while (nextUrl) {
-      const { data } = await axios.get(nextUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      if (Array.isArray(data.results)) {
-        results = results.concat(data.results);
-      }
-  
-      nextUrl = data.pagination?.nextUrl || null;
+const fetchAllPaginatedResults = async (initialUrl, token, pageSize = 100) => {
+  const results = [];
+  let offset = 0;
+  let totalResults = Infinity;
+
+  while (offset < totalResults) {
+    // Construyo la URL con limit y offset
+    const url = new URL(initialUrl);
+    url.searchParams.set("limit", pageSize);
+    url.searchParams.set("offset", offset);
+
+    const { data } = await axios.get(url.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (Array.isArray(data.results)) {
+      results.push(...data.results);
+    } else {
+      break;  // respuesta inesperada, salgo del bucle
     }
 
-    //console.log ('results', results[0])
-  
-    return results;
-  };
+    // Actualizo totalResults y offset para la siguiente iteración
+    totalResults = data.pagination.totalResults;
+    offset += data.pagination.limit;  // normalmente igual a pageSize
+  }
 
-  module.exports = { fetchAllPaginatedResults };
+  console.log("results", results);
+  return results;
+};
+
+module.exports = { fetchAllPaginatedResults };

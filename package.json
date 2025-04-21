@@ -18,7 +18,8 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
-    "mongoose": "^8.13.1"
+    "mongoose": "^8.13.2",
+    "oracledb": "^6.8.0"
   },
   "devDependencies": {
     "morgan": "^1.10.0",

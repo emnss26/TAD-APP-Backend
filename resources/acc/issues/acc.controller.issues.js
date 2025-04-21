@@ -1,10 +1,13 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
+const { insertDocs } = require("../../../config/database"); 
+
 const {
   GetIssueTypeName,
   GetIssueAttributeDefinitions,
 } = require("../../../libs/acc/acc.libs.js");
+
 const {mapUserIdsToNames} = require ('../../../libs/utils/user.mapper.libs.js')
 const {fetchAllPaginatedResults} = require("../../../libs/utils/pagination.libs.js");
 const { buildCustomAttributeValueMap, enrichCustomAttributes } = require ('../../../libs/utils/attibute.mapper.libs.js')
@@ -12,6 +15,7 @@ const { buildCustomAttributeValueMap, enrichCustomAttributes } = require ('../..
 const GetIssues = async (req, res) => {
   const token = req.cookies["access_token"];
   let projectId = req.params.projectId;
+  const accountId = req.params.accountId;
 
   if (projectId.startsWith("b.")) {
     projectId = projectId.substring(2);
@@ -64,6 +68,29 @@ const GetIssues = async (req, res) => {
     const issuesWithReadableAttributes = enrichCustomAttributes(issuesWithUserNames, attributeValueMap);
     
     //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes[0]);
+
+    const docsToInsert = issuesWithReadableAttributes.map(issue => ({
+      projectId,
+      id:          issue.id,
+      displayId:   issue.displayId,
+      title:       issue.title,
+      description: issue.description,
+      status:      issue.status,
+      issueTypeName: issue.issueTypeName,
+      createdAt:   new Date(issue.createdAt),
+      createdBy:   issue.createdBy,
+      assignedTo:  issue.assignedTo,
+      closedBy:    issue.closedBy,
+      dueDate:     issue.dueDate ? new Date(issue.dueDate) : null,
+      updatedAt:   new Date(issue.updatedAt),
+      closedAt:    issue.closedAt ? new Date(issue.closedAt) : null
+    }));
+
+    // 4) Inserción en Autonomous JSON DB vía ORDS SODA REST
+    const collectionName = `${accountId}_${projectId}_issues`;
+    console.log(`📥 Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    const insertResult = await insertDocs(collectionName, docsToInsert);
+    console.log("✅ Insert result:", insertResult);
 
     res.status(200).json({
       data: {
