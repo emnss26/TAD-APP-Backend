@@ -42,6 +42,9 @@ const GetThreeLegged = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      domain: "https://tad-app-fronend.vercel.app",
+      // domain: "tad-app-backend.vercel.app",
+      // domain: "tad-app-backend.vercel.app",
       path: "/",
     });
 
