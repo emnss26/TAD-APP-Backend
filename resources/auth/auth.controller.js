@@ -43,7 +43,6 @@ const GetThreeLegged = async (req, res) => {
       secure: true,
       sameSite: "none",
       path: "/",
-      domain: "tad-app-frontend.vercel.app"
     });
 
     console.log("token", token);

@@ -12,7 +12,7 @@ const { listCollections, getDocs, insertDocs } = require("./config/database");
 const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:5173",
-  "https://tad-app-fronend.vercel.app",
+  "https://tad-app-fronend.vercel.app", "https://tad-app-fronend.vercel.app",
 ];
 
 const app = express();
