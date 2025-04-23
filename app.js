@@ -101,6 +101,7 @@ app.use("/general", require("./resources/general/general.route"));
 app.use("/acc", require("./resources/acc/acc.router"));
 app.use("/bim360", require("./resources/bim360/bim360.router"));
 app.use("/datamanagement", require("./resources/datamanagement/datamanagement.router"));
+app.use('/modeldata', require ("./resources/model/model.router.js"));
 
 app.get("/", (req, res) => {
   res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });

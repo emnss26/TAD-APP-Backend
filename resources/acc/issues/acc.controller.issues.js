@@ -19,6 +19,8 @@ const {
   enrichCustomAttributes,
 } = require("../../../libs/utils/attibute.mapper.libs.js");
 
+const { validateIssue } = require("../../../config/database.schema.js");
+
 const GetIssues = async (req, res) => {
   const token = req.cookies["access_token"];
   let projectId = req.params.projectId;
@@ -93,7 +95,6 @@ const GetIssues = async (req, res) => {
     //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes[0]);
 
     const docsToInsert = issuesWithReadableAttributes.map((issue) => ({
-      projectId,
       id: issue.id,
       displayId: issue.displayId,
       title: issue.title,
@@ -107,12 +108,33 @@ const GetIssues = async (req, res) => {
       dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
       updatedAt: new Date(issue.updatedAt),
       closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
+      customAttributes : issue.customAttributes,
     }));
 
-    // 4) Inserción en Autonomous JSON DB vía ORDS SODA REST
+    const validDocs = [];
+    docsToInsert.forEach((doc, idx) => {
+      const ok = validateIssue(doc);
+      if (!ok) {
+        console.warn(
+          `Issue not valid in position ${idx}:`,
+          validateIssue.errors
+        );
+      } else {
+        validDocs.push(doc);
+      }
+    });
+
+    if (validDocs.length === 0) {
+      return res.status(400).json({
+        data: null,
+        error: 'Not valied document finded',
+        message: 'Failed validation'
+      });
+    }
+
     const collectionName = `${accountId}_${projectId}_issues`;
     //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    const insertResult = await insertDocs(collectionName, docsToInsert);
+    const insertResult = await insertDocs(collectionName, validDocs);
     //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
