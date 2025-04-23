@@ -1,5 +1,6 @@
 // app.js
 const express = require("express");
+const rateLimit = require('express-rate-limit');
 const morgan = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -52,6 +53,18 @@ app.use(
     },
   })
 );
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,     
+  max: 100,                     
+  standardHeaders: true,        
+  legacyHeaders: false,         
+  message: {
+    status: 429,
+    error: 'Too many requests, please try again later.'
+  }
+});
+app.use(globalLimiter);
+
 app.use(cookieParser());
 
 
