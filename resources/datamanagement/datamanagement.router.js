@@ -1,10 +1,10 @@
-const  express = require('express');
+const express = require("express");
 
 // Data Management
-const {GetFederatedModel} = require('./datamanagement.controller.js');
+const { GetFederatedModel } = require("./datamanagement.controller.js");
 
-const  router = express.Router();
+const router = express.Router();
 
-router.get('/items/:accountId/:projectId/federatedmodel', GetFederatedModel);
+router.get("/items/:accountId/:projectId/federatedmodel", GetFederatedModel);
 
 module.exports = router;

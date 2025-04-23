@@ -71,6 +71,8 @@ const GetAPSToken = async () => {
     { headers }
   );
 
+  //console.log("Token:", data.access_token);
+
   return data.access_token;
 };
 

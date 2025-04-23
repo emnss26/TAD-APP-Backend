@@ -5,9 +5,6 @@ const GetProjectUsers = async (req, res) => {
   const token = req.cookies["access_token"];
   let projectId = req.params.projectId;
 
-  //console.log('Project ID back:', projectId);
-  //console.log('access_token back :', token);
-
   if (projectId.startsWith("b.")) {
     projectId = projectId.substring(2);
   }
@@ -23,8 +20,6 @@ const GetProjectUsers = async (req, res) => {
   try {
     let allProjectUsers = [];
     let nextUrl = `	https://developer.api.autodesk.com/construction/admin/v1/projects/${projectId}/users?limit=20&offset=0`;
-
-    //console.log('Token:', token);
 
     while (nextUrl) {
       const { data: users } = await axios.get(nextUrl, {
@@ -62,5 +57,5 @@ const GetProjectUsers = async (req, res) => {
 };
 
 module.exports = {
-    GetProjectUsers,
-}
+  GetProjectUsers,
+};

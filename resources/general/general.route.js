@@ -1,9 +1,9 @@
-const  express = require ('express');
+const express = require("express");
 
-const {GetUserProfile} = require ('./user.profile');
+const { GetUserProfile } = require("./user.profile");
 
-const router = express.Router ();
+const router = express.Router();
 
-router.get ('/userprofile', GetUserProfile);
+router.get("/userprofile", GetUserProfile);
 
 module.exports = router;

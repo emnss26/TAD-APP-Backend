@@ -9,7 +9,7 @@ const axios = require("axios");
  * @param {string} params.projectId
  * @param {string} params.folderId
  * @param {string} [params.matchWord]
- * @param {Function} [params.filterFn]  
+ * @param {Function} [params.filterFn]
  */
 const GetFederatedModelFromFolders = async ({
   token,
@@ -26,7 +26,7 @@ const GetFederatedModelFromFolders = async ({
 
   if (!folderContent.data?.length) return null;
 
-  const items   = folderContent.data.filter((i) => i.type === "items");
+  const items = folderContent.data.filter((i) => i.type === "items");
   const folders = folderContent.data.filter((i) => i.type === "folders");
 
   /* 1) Revisa los files (.items) de la carpeta actual */
@@ -46,7 +46,7 @@ const GetFederatedModelFromFolders = async ({
       projectId,
       folderId: sub.id,
       matchWord,
-      filterFn,      
+      filterFn,
     });
     if (found) return found;
   }

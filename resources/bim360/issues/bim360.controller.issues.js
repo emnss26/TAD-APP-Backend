@@ -5,9 +5,16 @@ const {
   GetIssueTypeName,
   GetIssueAttributeDefinitions,
 } = require("../../../libs/bim360/bim360.libs.js");
-const { mapUserIdsToNames,} = require("../../../libs/utils/user.mapper.libs.js");
-const {fetchAllPaginatedResults,} = require("../../../libs/utils/pagination.libs.js");
-const {buildCustomAttributeValueMap, enrichCustomAttributes,} = require("../../../libs/utils/attibute.mapper.libs.js");
+const {
+  mapUserIdsToNames,
+} = require("../../../libs/utils/user.mapper.libs.js");
+const {
+  fetchAllPaginatedResults,
+} = require("../../../libs/utils/pagination.libs.js");
+const {
+  buildCustomAttributeValueMap,
+  enrichCustomAttributes,
+} = require("../../../libs/utils/attibute.mapper.libs.js");
 
 const GetIssues = async (req, res) => {
   const token = req.cookies["access_token"];

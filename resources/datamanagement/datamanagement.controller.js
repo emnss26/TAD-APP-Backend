@@ -1,11 +1,9 @@
 const axios = require("axios");
-const { GetFederatedModelFromFolders } = require(
-  "../../libs/general/folders.libs.js"
-);
+const {
+  GetFederatedModelFromFolders,
+} = require("../../libs/general/folders.libs.js");
 
-
-const MATCH_WORDS = ["FED", "FEDERADO", "FEDERATED", ];
-
+const MATCH_WORDS = ["FED", "FEDERADO", "FEDERATED"];
 
 function matchesFederatedRvt(displayName = "") {
   const nameUpper = displayName.toUpperCase();
@@ -15,9 +13,8 @@ function matchesFederatedRvt(displayName = "") {
   return MATCH_WORDS.some((w) => nameUpper.includes(w));
 }
 
-
 const GetFederatedModel = async (req, res) => {
-  const token     = req.cookies["access_token"];
+  const token = req.cookies["access_token"];
   const { projectId, accountId } = req.params;
 
   if (!token) {
@@ -29,7 +26,6 @@ const GetFederatedModel = async (req, res) => {
   }
 
   try {
-    
     const { data: topFolders } = await axios.get(
       `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -45,21 +41,21 @@ const GetFederatedModel = async (req, res) => {
 
     //console.log ("Top folders:", topFolders.data);
 
-    const projectFolder = topFolders.data.find(f =>
-      f.attributes.displayName === "Project Files" ||
-      f.attributes.displayName.toLowerCase() === "Archivos de proyecto"
+    const projectFolder = topFolders.data.find(
+      (f) =>
+        f.attributes.displayName === "Project Files" ||
+        f.attributes.displayName.toLowerCase() === "Archivos de proyecto"
     );
 
     const rootFolderId = projectFolder
-    ? projectFolder.id
-    : topFolders.data[0].id;
+      ? projectFolder.id
+      : topFolders.data[0].id;
 
     const foundFile = await GetFederatedModelFromFolders({
       token,
       projectId,
       folderId: rootFolderId,
-      filterFn: (item) =>
-        matchesFederatedRvt(item.attributes?.displayName),
+      filterFn: (item) => matchesFederatedRvt(item.attributes?.displayName),
     });
 
     if (!foundFile) {

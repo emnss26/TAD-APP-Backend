@@ -1,16 +1,23 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { insertDocs } = require("../../../config/database"); 
+const { insertDocs } = require("../../../config/database");
 
 const {
   GetIssueTypeName,
   GetIssueAttributeDefinitions,
 } = require("../../../libs/acc/acc.libs.js");
 
-const {mapUserIdsToNames} = require ('../../../libs/utils/user.mapper.libs.js')
-const {fetchAllPaginatedResults} = require("../../../libs/utils/pagination.libs.js");
-const { buildCustomAttributeValueMap, enrichCustomAttributes } = require ('../../../libs/utils/attibute.mapper.libs.js')
+const {
+  mapUserIdsToNames,
+} = require("../../../libs/utils/user.mapper.libs.js");
+const {
+  fetchAllPaginatedResults,
+} = require("../../../libs/utils/pagination.libs.js");
+const {
+  buildCustomAttributeValueMap,
+  enrichCustomAttributes,
+} = require("../../../libs/utils/attibute.mapper.libs.js");
 
 const GetIssues = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -31,7 +38,8 @@ const GetIssues = async (req, res) => {
 
   try {
     const issues = await fetchAllPaginatedResults(
-      `https://developer.api.autodesk.com/construction/issues/v1/projects/${projectId}/issues`,token
+      `https://developer.api.autodesk.com/construction/issues/v1/projects/${projectId}/issues`,
+      token
     );
 
     const issuesTypeNameData = await GetIssueTypeName(projectId, token);
@@ -43,8 +51,20 @@ const GetIssues = async (req, res) => {
 
     //console.log("issuesTypeNameData:", issuesTypeNameData);
 
-    const userFields = ["createdBy", "assignedTo", "closedBy", "openedBy", "updatedBy", "ownerId"];
-    const userMap = await mapUserIdsToNames(issues, projectId, token, userFields);
+    const userFields = [
+      "createdBy",
+      "assignedTo",
+      "closedBy",
+      "openedBy",
+      "updatedBy",
+      "ownerId",
+    ];
+    const userMap = await mapUserIdsToNames(
+      issues,
+      projectId,
+      token,
+      userFields
+    );
 
     const issuesWithUserNames = issues.map((issue) => ({
       ...issue,
@@ -65,32 +85,35 @@ const GetIssues = async (req, res) => {
 
     //console.log("Attribute Value Map:", attributeValueMap);
 
-    const issuesWithReadableAttributes = enrichCustomAttributes(issuesWithUserNames, attributeValueMap);
-    
+    const issuesWithReadableAttributes = enrichCustomAttributes(
+      issuesWithUserNames,
+      attributeValueMap
+    );
+
     //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes[0]);
 
-    const docsToInsert = issuesWithReadableAttributes.map(issue => ({
+    const docsToInsert = issuesWithReadableAttributes.map((issue) => ({
       projectId,
-      id:          issue.id,
-      displayId:   issue.displayId,
-      title:       issue.title,
+      id: issue.id,
+      displayId: issue.displayId,
+      title: issue.title,
       description: issue.description,
-      status:      issue.status,
+      status: issue.status,
       issueTypeName: issue.issueTypeName,
-      createdAt:   new Date(issue.createdAt),
-      createdBy:   issue.createdBy,
-      assignedTo:  issue.assignedTo,
-      closedBy:    issue.closedBy,
-      dueDate:     issue.dueDate ? new Date(issue.dueDate) : null,
-      updatedAt:   new Date(issue.updatedAt),
-      closedAt:    issue.closedAt ? new Date(issue.closedAt) : null
+      createdAt: new Date(issue.createdAt),
+      createdBy: issue.createdBy,
+      assignedTo: issue.assignedTo,
+      closedBy: issue.closedBy,
+      dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
+      updatedAt: new Date(issue.updatedAt),
+      closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
     }));
 
     // 4) Inserción en Autonomous JSON DB vía ORDS SODA REST
     const collectionName = `${accountId}_${projectId}_issues`;
-    console.log(`📥 Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
     const insertResult = await insertDocs(collectionName, docsToInsert);
-    console.log("✅ Insert result:", insertResult);
+    //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {
