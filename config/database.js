@@ -56,8 +56,19 @@ async function insertDocs(collectionName, docs) {
   return res.data;
 }
 
+async function upsertDoc(collectionName, key, doc) {
+  await ensureCollection(collectionName);
+  // El body será el documento completo
+  const res = await client.put(
+    `/${SCHEMA}/soda/latest/${collectionName}/${encodeURIComponent(key)}`,
+    doc
+  );
+  return res.data;
+}
+
 module.exports = {
   listCollections,
   getDocs,
   insertDocs,
+  upsertDoc
 };

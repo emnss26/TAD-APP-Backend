@@ -90,6 +90,7 @@ async function patchDataModel(req, res) {
   }
 
   try {
+    // 1) Recuperar el doc existente
     const [existing] = await getDocs(
       `${coll}?filter=dbId eq '${encodeURIComponent(dbId)}'`
     );
@@ -101,8 +102,10 @@ async function patchDataModel(req, res) {
       });
     }
 
+    // 2) Actualizar el campo
     const updatedDoc = { ...existing, [field]: value };
 
+    // 3) Validar contra el esquema completo
     if (!validateModelData(updatedDoc)) {
       return res.status(400).json({
         data: null,
@@ -111,16 +114,17 @@ async function patchDataModel(req, res) {
       });
     }
 
+    // 4) Upsert del documento completo
     await upsertDoc(coll, dbId, updatedDoc);
 
-    res.status(200).json({
+    return res.status(200).json({
       data: updatedDoc,
       error: null,
       message: `Campo '${field}' actualizado correctamente`,
     });
   } catch (err) {
     console.error("Error en patchDataModel:", err);
-    res.status(500).json({
+    return res.status(500).json({
       data: null,
       error: err.message,
       message: "Error al actualizar el documento",
