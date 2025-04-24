@@ -106,6 +106,7 @@ const modelDataSchema = {
     elementType: { type: "string" },
     typeName: { type: "string" },
     description: { type: "string" },
+    typeMark: { type: "string" },
 
     length: { type: "number" },
     width: { type: "number" },

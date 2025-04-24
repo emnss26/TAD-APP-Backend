@@ -14,51 +14,34 @@ async function postDataModel(req, res) {
   const { projectId, accountId } = req.params;
   const rows = Array.isArray(req.body) ? req.body : [];
 
-  // 1. Filtrar filas con dbId inválido
-  const nonEmpty = rows.filter((r) => r.dbId && String(r.dbId).trim());
+  const nonEmpty = rows.filter(r => r.dbId && String(r.dbId).trim());
   if (!nonEmpty.length) {
-    return res.status(400).json({
-      data: [],
-      error: "No hay filas con dbId válido",
-      message: "Proporciona al menos una fila con dbId",
-    });
+    return res.status(400).json({ /* …mensaje… */ });
   }
 
   const docs = [];
   nonEmpty.forEach((r, i) => {
     const doc = { accountId, projectId, ...r };
     if (!validateModelData(doc)) {
-      console.warn(
-        `Fila ${i} inválida (dbId=${r.dbId}):`,
-        validateModelData.errors
-      );
+      console.warn(`Fila ${i} inválida:`, validateModelData.errors);
     } else {
       docs.push(doc);
     }
   });
   if (!docs.length) {
-    return res.status(400).json({
-      data: [],
-      error: "Todos los docs fallaron validación",
-      message: "Revisa formato de tus datos",
-    });
+    return res.status(400).json({ /* …mensaje… */ });
   }
 
   const coll = getCollName(accountId, projectId);
   try {
-    await Promise.all(docs.map((doc) => upsertDoc(coll, doc.dbId, doc)));
-    res.status(200).json({
-      data: docs,
-      error: null,
-      message: "Datos guardados/upsert correctamente",
-    });
+    // CORRECCIÓN: mapear el array a promesas
+    await Promise.all(
+      docs.map(doc => upsertDoc(coll, doc.dbId, doc))
+    );
+    res.status(200).json({ data: docs, error: null, message: "Guardado OK" });
   } catch (err) {
     console.error("Error en upsert bulk:", err);
-    res.status(500).json({
-      data: null,
-      error: err.message,
-      message: "No se pudieron guardar los datos",
-    });
+    res.status(500).json({ /* …mensaje de error… */ });
   }
 }
 
@@ -67,6 +50,7 @@ async function getDataModel(req, res) {
   const { discipline, page = 1, limit = 5000 } = req.query;
   const coll = getCollName(accountId, projectId);
 
+  // 1) Construir parámetros SODA
   const q = [];
   if (discipline && discipline.toLowerCase() !== "all disciplines") {
     q.push(`filter=discipline eq '${encodeURIComponent(discipline)}'`);
@@ -75,6 +59,7 @@ async function getDataModel(req, res) {
   q.push(`offset=${(page - 1) * parseInt(limit, 10)}`);
 
   try {
+    // 2) Llamada a SODA
     const items = await getDocs(`${coll}?${q.join("&")}`);
     res.status(200).json({
       data: items,
