@@ -1,6 +1,8 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
+const { insertDocs } = require("../../../config/database");
+
 const {
   mapUserIdsToNames,
 } = require("../../../libs/utils/user.mapper.libs.js");
@@ -8,9 +10,12 @@ const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
 
+const {validateRfis } = require("../../../config/database.schema.js");
+
 const GetRfis = async (req, res) => {
   const token = req.cookies["access_token"];
   let projectId = req.params.projectId;
+  const accountId = req.params.accountId;
 
   if (projectId.startsWith("b.")) {
     projectId = projectId.substring(2);
@@ -32,6 +37,14 @@ const GetRfis = async (req, res) => {
 
     //console.log('RFIs data:', rfis);
 
+    if (!Array.isArray(rfis) || rfis.length === 0) {
+      return res.status(200).json({
+        data: { rfis: [] },
+        error: null,
+        message: "No RFIs found for this project",
+      });
+    }
+    
     const userFields = [
       "createdBy",
       "assignedTo",
@@ -65,6 +78,54 @@ const GetRfis = async (req, res) => {
     });
 
     //console.log('RFIs with names:', rfisdatawithnames);
+
+    const docsToInsert = rfisdatawithnames.map((rfi) => ({
+      customIdentifier: rfi.id,
+      title: rfi.title,
+      discipline: rfi.discipline,
+      priority: rfi.priority,
+      status: rfi.status,
+      question : rfi.question,
+      officialResponse: rfi.officialResponse,
+      createdBy: rfi.createdBy,
+      assignedTo: rfi.assignedTo,
+      managerId: rfi.managerId,
+      respondedBy: rfi.respondedBy,
+      respondedAt: rfi.respondedAt ? new Date(rfi.respondedAt) : null,
+      createdAt: new Date(rfi.createdAt),
+      reviewerId: rfi.reviewerId,
+      updatedBy: rfi.updatedBy,
+      dueDate: rfi.dueDate ? new Date(rfi.dueDate) : null,
+      updatedAt: new Date(rfi.updatedAt),
+      closedAt: rfi.closedAt ? new Date(rfi.closedAt) : null,
+      closedBy: rfi.closedBy,
+    }));
+
+    const validDocs = [];
+    docsToInsert.forEach((doc, idx) => {
+      const ok = validateRfis(doc);
+      if (!ok) {
+        console.warn(
+          `RFI not valid in position ${idx}:`,
+          validateRfis.errors
+        );
+      } else {
+        validDocs.push(doc);
+      }
+    });
+
+    if (validDocs.length === 0) {
+      return res.status(400).json({
+        data: null,
+        error: 'Not valied document finded',
+        message: 'Failed validation'
+      });
+    }
+
+    const collectionName = `${accountId}_${projectId}_rfis`;
+    //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    const insertResult = await insertDocs(collectionName, validDocs);
+    //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {

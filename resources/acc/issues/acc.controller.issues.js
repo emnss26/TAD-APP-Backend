@@ -44,6 +44,14 @@ const GetIssues = async (req, res) => {
       token
     );
 
+    if (!Array.isArray(issues) || issues.length === 0) {
+      return res.status(200).json({
+        data: { issues: [] },
+        error: null,
+        message: "No Issues found for this project",
+      });
+    }
+    
     const issuesTypeNameData = await GetIssueTypeName(projectId, token);
 
     const issueTypeMap = issuesTypeNameData.results.reduce((acc, type) => {
@@ -108,7 +116,7 @@ const GetIssues = async (req, res) => {
       dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
       updatedAt: new Date(issue.updatedAt),
       closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
-      customAttributes : issue.customAttributes,
+      
     }));
 
     const validDocs = [];

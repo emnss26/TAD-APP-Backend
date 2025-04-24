@@ -25,6 +25,7 @@ const GetSubmittals = async (req, res) => {
   const token = req.cookies["access_token"];
 
   let projectId = req.params.projectId;
+  const accountId = req.params.accountId;
 
   if (projectId.startsWith("b.")) {
     projectId = projectId.substring(2);
@@ -43,6 +44,14 @@ const GetSubmittals = async (req, res) => {
       `https://developer.api.autodesk.com/construction/submittals/v2/projects/${projectId}/items`,
       token
     );
+
+    if (!Array.isArray(submittals) || submittals.length === 0) {
+      return res.status(200).json({
+        data: { submittals: [] },
+        error: null,
+        message: "No Issues found for this project",
+      });
+    }
 
     const userFields = [
       "manager",
@@ -102,10 +111,7 @@ const GetSubmittals = async (req, res) => {
       })
     );
 
-    console.log (
-      "Submittals with user details:",
-      submittalsWithUserDetails
-    );
+    //console.log ("Submittals with user details:", submittalsWithUserDetails     );
 
     const docsToInsert = submittalsWithUserDetails.map((submittal) => ({
       identifier : submittal.id,

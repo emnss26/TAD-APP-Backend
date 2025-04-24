@@ -15,6 +15,7 @@ const {validateRfis } = require("../../../config/database.schema.js");
 const GetRfis = async (req, res) => {
   const token = req.cookies["access_token"];
   let projectId = req.params.projectId;
+  const accountId = req.params.accountId;
 
   if (projectId.startsWith("b.")) {
     projectId = projectId.substring(2);
@@ -35,6 +36,14 @@ const GetRfis = async (req, res) => {
     );
 
     //console.log('RFIs data:', rfis);
+
+    if (!Array.isArray(rfis) || rfis.length === 0) {
+      return res.status(200).json({
+        data: { rfis: [] },
+        error: null,
+        message: "No RFIs found for this project",
+      });
+    }
 
     const userFields = [
       "createdBy",
