@@ -98,63 +98,126 @@ const submittalsSchema = {
 };
 
 const modelDataSchema = {
+  $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
+  definitions: {
+    nullableString: {
+      anyOf: [
+        { type: "string" },
+        { type: "null" },
+        { type: "string", maxLength: 0 }
+      ]
+    },
+    nullableNumber: {
+      anyOf: [
+        { type: "number" },
+        { type: "null" }
+      ]
+    },
+    nullableDate: {
+      anyOf: [
+        { type: "null" },
+        { type: "string", format: "date" },
+        { type: "string", maxLength: 0 }
+      ]
+    }
+  },
   properties: {
-    dbId: { type: "string" },
-    code: { type: "string" },
-    discipline: { type: "string" },
-    elementType: { type: "string" },
-    typeName: { type: "string" },
-    description: { type: "string" },
-    typeMark: { type: "string" },
+    dbId: { $ref: "#/definitions/nullableString" },
+    Code: { $ref: "#/definitions/nullableString" },
+    Discipline: { $ref: "#/definitions/nullableString" },
+    ElementType: { $ref: "#/definitions/nullableString" },
+    TypeName: { $ref: "#/definitions/nullableString" },
+    Description: { $ref: "#/definitions/nullableString" },
+    TypeMark: { $ref: "#/definitions/nullableString" },
 
-    length: { type: "number" },
-    width: { type: "number" },
-    height: { type: "number" },
-    perimeter: { type: "number" },
-    area: { type: "number" },
-    volume: { type: "number" },
-    thickness: { type: "number" },
+    Length: { $ref: "#/definitions/nullableNumber" },
+    Width: { $ref: "#/definitions/nullableNumber" },
+    Height: { $ref: "#/definitions/nullableNumber" },
+    Perimeter: { $ref: "#/definitions/nullableNumber" },
+    Area: { $ref: "#/definitions/nullableNumber" },
+    Volume: { $ref: "#/definitions/nullableNumber" },
+    Thickness: { $ref: "#/definitions/nullableNumber" },
 
-    level: { type: "string" },
-    materials: { type: "string" },
+    Level: { $ref: "#/definitions/nullableString" },
+    Material: { $ref: "#/definitions/nullableString" },
 
-    plannedConstructionStartDate: { type: ["string","object","null"], format: "date-time" },
-    plannedConstructionEndDate: { type: ["string","object","null"], format: "date-time" },
-    realConstructionStartDate: { type: ["string","object","null"], format: "date-time" },
-    realConstructionEndDate: { type: ["string","object","null"], format: "date-time" },
+    PlanedConstructionStartDate: { $ref: "#/definitions/nullableDate" },
+    PlanedConstructionEndDate:   { $ref: "#/definitions/nullableDate" },
+    RealConstructionStartDate:    { $ref: "#/definitions/nullableDate" },
+    RealConstructionEndDate:      { $ref: "#/definitions/nullableDate" },
 
-    unit: { type: "string" },
-    quantity: { type: "number" },
-    unitCost: { type: "number" },
-    totalCost: { type: "number" },
+    Unit:           { $ref: "#/definitions/nullableString" },
+    Quantity:       { $ref: "#/definitions/nullableNumber" },
+    UnitCost:       { $ref: "#/definitions/nullableNumber" },
+    TotalCost:      { $ref: "#/definitions/nullableNumber" },
 
-    energyConsumption: { type: "number" },
-    waterConsumption: { type: "number" },
-    carbonFootprint: { type: "number" },
-    lifeCycleStage: { type: "number" },
-    LEEDcreditCategory: { type: "string" },
-    LEEDcredit: { type: "string" },
+    EnergyConsumption: { $ref: "#/definitions/nullableNumber" },
+    WaterConsumption:  { $ref: "#/definitions/nullableNumber" },
+    CarbonFootprint:   { $ref: "#/definitions/nullableNumber" },
+    LifeCycleStage:    { $ref: "#/definitions/nullableNumber" },
+    LEEDcreditCategory:{ $ref: "#/definitions/nullableString" },
+    LEEDcredit:        { $ref: "#/definitions/nullableString" },
 
-    manufacturer: { type: "string" },
-    model: { type: "string" },
-    keynote: { type: "string" },
-    comments: { type: "string" },
-    warranty: { type: "string" },
-    maintenancePeriod: { type: "string" },
-    maintenanceSchedule: { type: "string" },
-    maintenanceCost: { type: "number" },
-    serialNumber: { type: "string" },
+    Manufacturer:        { $ref: "#/definitions/nullableString" },
+    Model:               { $ref: "#/definitions/nullableString" },
+    Keynote:             { $ref: "#/definitions/nullableString" },
+    Comments:            { $ref: "#/definitions/nullableString" },
+    Warranty:            { $ref: "#/definitions/nullableString" },
+    MaintenancePeriod:   { $ref: "#/definitions/nullableString" },
+    MaintenanceSchedule: { $ref: "#/definitions/nullableString" },
+    MaintenanceCost:     { $ref: "#/definitions/nullableNumber" },
+    SerialNumber:        { $ref: "#/definitions/nullableString" },
   },
   required: ["dbId"],
   additionalProperties: false,
 };
+
+const plansDataSchema = {
+  $schema: "http://json-schema.org/draft-07/schema#",
+  type: "object",
+  definitions: {
+    nullableString: {
+      anyOf: [
+        { type: "string" },
+        { type: "null" },
+        { type: "string", maxLength: 0 }
+      ]
+    },
+    nullableNumber: {
+      anyOf: [
+        { type: "number" },
+        { type: "null" }
+      ]
+    },
+    nullableDate: {
+      anyOf: [
+        { type: "null" },
+        { type: "string", format: "date" },
+        { type: "string", maxLength: 0 }
+      ]
+    }
+  },
+  properties: {
+    Id: { $ref: "#/definitions/nullableString" },
+    SheetName: { $ref: "#/definitions/nullableString" },
+    SheetNumber: { $ref: "#/definitions/nullableString" },
+    Discipline: { $ref: "#/definitions/nullableString" },
+    Revision: { $ref: "#/definitions/nullableString" },
+    RevisionDate: { $ref: "#/definitions/nullableString" },
+
+  },
+  required: ["Id"],
+  additionalProperties: false,
+};
+
 
 const validateUsers = ajv.compile(usersSchema);
 const validateIssue = ajv.compile(issueSchema);
 const validateRfis = ajv.compile(rfisSchema);
 const validateSubmittals = ajv.compile(submittalsSchema);
 const validateModelData = ajv.compile(modelDataSchema);
+const validatePlansData = ajv.compile(plansDataSchema);
 
 module.exports = {
   validateUsers,
@@ -162,4 +225,5 @@ module.exports = {
   validateRfis,
   validateSubmittals,
   validateModelData,
+  validatePlansData,
 };

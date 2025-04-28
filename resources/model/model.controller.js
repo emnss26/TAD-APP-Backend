@@ -2,9 +2,23 @@ const { default: axios } = require("axios");
 
 const { format } = require("morgan");
 
-const { insertDocs, upsertDoc, getDocs } = require("../../config/database");
+const { insertDocs, upsertDoc, getDocs} = require("../../config/database");
 
 const { validateModelData } = require("../../config/database.schema");
+const ORDS_URL = process.env.ORDS_URL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const basicAuth = Buffer.from(`ADMIN:${ADMIN_PASSWORD}`).toString("base64");
+
+const client = axios.create({
+  baseURL: ORDS_URL,
+  headers: {
+    Authorization: `Basic ${basicAuth}`,
+    "Content-Type": "application/json",
+  },
+  timeout: 5000,
+});
+
+const SCHEMA = process.env.ORDS_SCHEMA || 'admin';
 
 function getCollName(accountId, projectId) {
   return `${accountId}_${projectId}_modeldatabase`;
@@ -14,64 +28,146 @@ async function postDataModel(req, res) {
   const { projectId, accountId } = req.params;
   const rows = Array.isArray(req.body) ? req.body : [];
 
-  const nonEmpty = rows.filter(r => r.dbId && String(r.dbId).trim());
-  if (!nonEmpty.length) {
-    return res.status(400).json({ /* …mensaje… */ });
+  // 1) Filtrar filas con dbId
+  const candidates = rows.filter(r => r.dbId && String(r.dbId).trim());
+  if (!candidates.length) {
+    return res.status(400).json({
+      data: [],
+      error: "No hay filas con dbId válido",
+      message: "Añade al menos un elemento con dbId"
+    });
   }
 
-  const docs = [];
-  nonEmpty.forEach((r, i) => {
-    const doc = { accountId, projectId, ...r };
-    if (!validateModelData(doc)) {
-      console.warn(`Fila ${i} inválida:`, validateModelData.errors);
-    } else {
-      docs.push(doc);
+  // 2) Validar **solo** los campos del esquema
+  const validatedRows = candidates.map((r, i) => {
+    const rowDoc = {
+      // ... (todos tus campos como estaban)
+      dbId: r.dbId,
+      Code: r.Code,
+      Discipline: r.Discipline,
+      ElementType: r.ElementType,
+      TypeName: r.TypeName,
+      Description: r.Description,
+      TypeMark: r.TypeMark,
+      Length: r.Length,
+      Width: r.Width,
+      Height: r.Height,
+      Perimeter: r.Perimeter,
+      Area: r.Area,
+      Volume: r.Volume,
+      Thickness: r.Thickness,
+      Level: r.Level,
+      Materials: r.Material, // o r.Materials, según tu frontend/esquema
+      PlanedConstructionStartDate: r.PlanedConstructionStartDate,
+      PlanedConstructionEndDate:   r.PlanedConstructionEndDate,
+      RealConstructionStartDate:    r.RealConstructionStartDate,
+      RealConstructionEndDate:      r.RealConstructionEndDate,
+      Unit: r.Unit,
+      Quantity: r.Quantity,
+      UnitCost: r.UnitCost,
+      TotalCost: r.TotalCost,
+      EnergyConsumption: r.EnergyConsumption,
+      WaterConsumption:  r.WaterConsumption,
+      CarbonFootprint:   r.CarbonFootprint,
+      LifeCycleStage:    r.LifeCycleStage,
+      LEEDcreditCategory: r.LEEDcreditCategory,
+      LEEDcredit:         r.LEEDcredit,
+      Manufacturer:       r.Manufacturer,
+      Model:              r.Model,
+      Keynote:            r.Keynote,
+      Comments:           r.Comments,
+      Warranty:           r.Warranty,
+      MaintenancePeriod:  r.MaintenancePeriod,
+      MaintenanceSchedule:r.MaintenanceSchedule,
+      MaintenanceCost:    r.MaintenanceCost,
+      SerialNumber:       r.SerialNumber
+    };
+
+    // Elimina propiedades nulas o indefinidas ANTES de validar si tu esquema es estricto
+    Object.keys(rowDoc).forEach(key => (rowDoc[key] == null) && delete rowDoc[key]);
+
+
+    if (!validateModelData(rowDoc)) {
+      console.warn(`Fila ${i} (dbId: ${r.dbId}) inválida:`, validateModelData.errors);
+      return null;
     }
-  });
-  if (!docs.length) {
-    return res.status(400).json({ /* …mensaje… */ });
+    return rowDoc;
+  }).filter(Boolean);
+
+  if (!validatedRows.length) {
+    return res.status(400).json({
+      data: [],
+      error: "Ninguna fila pasó la validación",
+      message: "Revisa el formato de tus datos o los errores de validación en la consola del backend."
+    });
   }
 
-  const coll = getCollName(accountId, projectId);
+  // 3) Ahora sí riqueza final con _key y metadatos
+  const docs = validatedRows.map(r => ({
+    _key: String(r.dbId), // La clave SODA será el dbId como string
+    accountId,
+    projectId,
+    ...r // Incluye todas las propiedades validadas
+  }));
+
+  const coll = getCollName(accountId, projectId); // Usa la función helper
+
   try {
-    // CORRECCIÓN: mapear el array a promesas
-    await Promise.all(
-      docs.map(doc => upsertDoc(coll, doc.dbId, doc))
-    );
-    res.status(200).json({ data: docs, error: null, message: "Guardado OK" });
+    
+    const results = [];
+    // Itera sobre cada documento preparado y llama a upsertDoc
+    for (const doc of docs) {
+        // console.log(`Intentando upsert para _key: ${doc._key} en colección ${coll}`); // Log para depuración
+        const result = await upsertDoc(coll, doc._key, doc);
+        results.push(result); // Opcional: guardar resultados si los necesitas
+    }
+
+    // Devuelve los documentos originales enviados (o los resultados si prefieres)
+    return res.status(200).json({
+      // data: results, // Podrías devolver los resultados del upsert si son útiles
+      data: docs, // Devuelve los documentos que se intentaron guardar/actualizar
+      error: null,
+      message: `Procesados ${docs.length} documentos correctamente (actualizados o insertados).` // Mensaje corregido
+    });
+
   } catch (err) {
-    console.error("Error en upsert bulk:", err);
-    res.status(500).json({ /* …mensaje de error… */ });
+    console.error("Error en postDataModel durante el bucle de upsert:", err);
+    return res.status(500).json({
+      data: null,
+      error: err.message || String(err),
+      message: "Error al guardar/actualizar los datos. Uno o más documentos pudieron fallar."
+    });
   }
 }
 
 async function getDataModel(req, res) {
   const { projectId, accountId } = req.params;
-  const { discipline, page = 1, limit = 5000 } = req.query;
+  const { discipline } = req.query;
   const coll = getCollName(accountId, projectId);
 
-  // 1) Construir parámetros SODA
-  const q = [];
-  if (discipline && discipline.toLowerCase() !== "all disciplines") {
-    q.push(`filter=discipline eq '${encodeURIComponent(discipline)}'`);
-  }
-  q.push(`limit=${parseInt(limit, 10)}`);
-  q.push(`offset=${(page - 1) * parseInt(limit, 10)}`);
-
   try {
-    // 2) Llamada a SODA
-    const items = await getDocs(`${coll}?${q.join("&")}`);
+    let items;
+    if (discipline && discipline.toLowerCase() !== 'all disciplines') {
+      // POST con Query‐By‐Example
+      const qbe = { Discipline: discipline };
+      const url = `/${SCHEMA}/soda/latest/${coll}?action=query`;
+      const response = await client.post(url, qbe);
+      items = response.data.items;
+    } else {
+      items = await getDocs(coll);
+    }
+
     res.status(200).json({
       data: items,
       error: null,
-      message: "Datos recuperados correctamente",
+      message: 'Datos recuperados correctamente'
     });
   } catch (err) {
-    console.error("Error al obtener docs:", err);
+    console.error('Error al obtener docs:', err);
     res.status(500).json({
       data: null,
       error: err.message,
-      message: "No se pudieron recuperar los datos",
+      message: 'No se pudieron recuperar los datos'
     });
   }
 }
