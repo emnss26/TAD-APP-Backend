@@ -1,7 +1,8 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { insertDocs } = require("../../../config/database");
+const { insertDocs,  upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
 
 const {
   mapUserIdsToNames,
@@ -80,7 +81,8 @@ const GetRfis = async (req, res) => {
     //console.log('RFIs with names:', rfisdatawithnames);
 
     const docsToInsert = rfisdatawithnames.map((rfi) => ({
-      customIdentifier: rfi.id,
+      _key: rfi.customIdentifier,
+      customIdentifier: rfi.customIdentifier,
       title: rfi.title,
       discipline: rfi.discipline,
       priority: rfi.priority,
@@ -124,7 +126,7 @@ const GetRfis = async (req, res) => {
 
     const collectionName = `${accountId}_${projectId}_rfis`;
     //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    const insertResult = await insertDocs(collectionName, validDocs);
+    await batchUpsert(collectionName, validDocs);
     //console.log(" Insert result:", insertResult);
 
     res.status(200).json({

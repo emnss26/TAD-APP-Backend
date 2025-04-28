@@ -2,7 +2,8 @@ const { default: axios } = require("axios");
 const { format } = require("morgan");
 const { GetSubmittalSpecId } = require("../../../libs/acc/acc.libs.js");
 
-const { insertDocs } = require("../../../config/database");
+const { insertDocs, upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
 
 const {
   mapUserIdsToNames,
@@ -71,6 +72,7 @@ const GetSubmittals = async (req, res) => {
 
     const submittalsWithUserDetails = await Promise.all(
       submittals.map(async (submittal) => {
+        
         submittal.projectId = projectId;
 
         submittal.stateId = stateMap[submittal.stateId] || submittal.stateId;
@@ -114,7 +116,7 @@ const GetSubmittals = async (req, res) => {
     //console.log ("Submittals with user details:", submittalsWithUserDetails     );
 
     const docsToInsert = submittalsWithUserDetails.map((submittal) => ({
-      identifier : submittal.id,
+      _key: submittal.id,
       id: submittal.id,
       title: submittal.title,
       description: submittal.description,
@@ -167,7 +169,7 @@ const GetSubmittals = async (req, res) => {
 
     const collectionName = `${accountId}_${projectId}_submittals`;
     //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    const insertResult = await insertDocs(collectionName, validDocs);
+    await batchUpsert(collectionName, validDocs, 20);
     //console.log(" Insert result:", insertResult);
 
     res.status(200).json({

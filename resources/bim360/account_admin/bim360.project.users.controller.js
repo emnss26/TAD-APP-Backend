@@ -1,7 +1,8 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { insertDocs } = require("../../../config/database");
+const { insertDocs, upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
 
 const { validateUsers } = require("../../../config/database.schema.js");
 
@@ -45,6 +46,7 @@ const GetProjectUsers = async (req, res) => {
     //console.log('All Users:', allProjectUsers[0].projectId);
 
     const docsToInsert = allProjectUsers.map((user) => ({
+      _key: user.email,
       email: user.email,
       name: user.name,
       firstName: user.firstName,
@@ -77,7 +79,7 @@ const GetProjectUsers = async (req, res) => {
 
     const collectionName = `${accountId}_${projectId}_users`;
     //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    const insertResult = await insertDocs(collectionName, validDocs);
+    await batchUpsert(collectionName, validDocs, 20);
     //console.log(" Insert result:", insertResult);
 
 

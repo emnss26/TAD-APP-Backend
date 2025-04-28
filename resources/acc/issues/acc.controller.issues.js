@@ -1,7 +1,8 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { insertDocs } = require("../../../config/database");
+const { insertDocs, upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
 
 const {
   GetIssueTypeName,
@@ -103,6 +104,7 @@ const GetIssues = async (req, res) => {
     //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes[0]);
 
     const docsToInsert = issuesWithReadableAttributes.map((issue) => ({
+      _key: issue.id,
       id: issue.id,
       displayId: issue.displayId,
       title: issue.title,
@@ -142,7 +144,7 @@ const GetIssues = async (req, res) => {
 
     const collectionName = `${accountId}_${projectId}_issues`;
     //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    const insertResult = await insertDocs(collectionName, validDocs);
+    await batchUpsert(collectionName, validDocs, 20);
     //console.log(" Insert result:", insertResult);
 
     res.status(200).json({

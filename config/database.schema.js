@@ -2,12 +2,13 @@ const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
 const { model } = require("mongoose");
 
-const ajv = new Ajv({ coerceTypes: true, removeAdditional: true });
+const ajv = new Ajv({ coerceTypes: true, removeAdditional: true, allowUnionTypes: true  });
 addFormats(ajv);
 
 const usersSchema = {
   type: "object",
   properties: {
+    _key: { type: "string" },
     email: { type: "string", format: "email" },
     name: { type: "string" },
     firstName: { type: "string" },
@@ -22,6 +23,7 @@ const usersSchema = {
 const issueSchema = {
   type: "object",
   properties: {
+    _key: { type: "string" },
     id: { type: "string" },
     title: { type: "string" },
     displayId: { type: "string" },
@@ -45,6 +47,7 @@ const issueSchema = {
 const rfisSchema = {
   type: "object",
   properties: {
+    _key: { type: "string" },
     customIdentifier: { type: "string" },
     title: { type: "string" },
     discipline: { type: "string" },
@@ -72,6 +75,7 @@ const rfisSchema = {
 const submittalsSchema = {
   type: "object",
   properties: {
+    _key: { type: "string" },
     identifier: { type: "string" },
     id: { type: "string" },
     title: { type: "string" },

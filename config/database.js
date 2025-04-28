@@ -14,7 +14,7 @@ const client = axios.create({
     Authorization: `Basic ${basicAuth}`,
     "Content-Type": "application/json",
   },
-  timeout: 5000,
+  timeout: 30000,
 });
 
 //console.log(`ORDS client configurado en ${ORDS_URL}`);
@@ -140,5 +140,6 @@ module.exports = {
   listCollections,
   getDocs,
   insertDocs,
-  upsertDoc
+  upsertDoc,
+  ensureCollection,
 };
