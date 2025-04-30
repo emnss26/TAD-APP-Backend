@@ -80,54 +80,54 @@ const GetRfis = async (req, res) => {
 
     //console.log('RFIs with names:', rfisdatawithnames);
 
-    const docsToInsert = rfisdatawithnames.map((rfi) => ({
-      _key: rfi.customIdentifier,
-      customIdentifier: rfi.customIdentifier,
-      title: rfi.title,
-      discipline: rfi.discipline,
-      priority: rfi.priority,
-      status: rfi.status,
-      question : rfi.question,
-      officialResponse: rfi.officialResponse,
-      createdBy: rfi.createdBy,
-      assignedTo: rfi.assignedTo,
-      managerId: rfi.managerId,
-      respondedBy: rfi.respondedBy,
-      respondedAt: rfi.respondedAt ? new Date(rfi.respondedAt) : null,
-      createdAt: new Date(rfi.createdAt),
-      reviewerId: rfi.reviewerId,
-      updatedBy: rfi.updatedBy,
-      dueDate: rfi.dueDate ? new Date(rfi.dueDate) : null,
-      updatedAt: new Date(rfi.updatedAt),
-      closedAt: rfi.closedAt ? new Date(rfi.closedAt) : null,
-      closedBy: rfi.closedBy,
-    }));
+    // const docsToInsert = rfisdatawithnames.map((rfi) => ({
+    //   _key: rfi.customIdentifier,
+    //   customIdentifier: rfi.customIdentifier,
+    //   title: rfi.title,
+    //   discipline: rfi.discipline,
+    //   priority: rfi.priority,
+    //   status: rfi.status,
+    //   question : rfi.question,
+    //   officialResponse: rfi.officialResponse,
+    //   createdBy: rfi.createdBy,
+    //   assignedTo: rfi.assignedTo,
+    //   managerId: rfi.managerId,
+    //   respondedBy: rfi.respondedBy,
+    //   respondedAt: rfi.respondedAt ? new Date(rfi.respondedAt) : null,
+    //   createdAt: new Date(rfi.createdAt),
+    //   reviewerId: rfi.reviewerId,
+    //   updatedBy: rfi.updatedBy,
+    //   dueDate: rfi.dueDate ? new Date(rfi.dueDate) : null,
+    //   updatedAt: new Date(rfi.updatedAt),
+    //   closedAt: rfi.closedAt ? new Date(rfi.closedAt) : null,
+    //   closedBy: rfi.closedBy,
+    // }));
 
-    const validDocs = [];
-    docsToInsert.forEach((doc, idx) => {
-      const ok = validateRfis(doc);
-      if (!ok) {
-        console.warn(
-          `RFI not valid in position ${idx}:`,
-          validateRfis.errors
-        );
-      } else {
-        validDocs.push(doc);
-      }
-    });
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateRfis(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `RFI not valid in position ${idx}:`,
+    //       validateRfis.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    if (validDocs.length === 0) {
-      return res.status(400).json({
-        data: null,
-        error: 'Not valied document finded',
-        message: 'Failed validation'
-      });
-    }
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    const collectionName = `${accountId}_${projectId}_rfis`;
-    //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    await batchUpsert(collectionName, validDocs);
-    //console.log(" Insert result:", insertResult);
+    // const collectionName = `${accountId}_${projectId}_rfis`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs);
+    // //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {

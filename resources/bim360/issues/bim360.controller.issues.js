@@ -102,49 +102,49 @@ const GetIssues = async (req, res) => {
 
     //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes);
 
-    const docsToInsert = issuesWithReadableAttributes.map((issue) => ({
-      _key: issue.id,  
-      id: issue.id,
-      displayId: issue.displayId,
-      title: issue.title,
-      description: issue.description,
-      status: issue.status,
-      issueTypeName: issue.issueTypeName,
-      createdAt: new Date(issue.createdAt),
-      createdBy: issue.createdBy,
-      assignedTo: issue.assignedTo,
-      closedBy: issue.closedBy,
-      dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
-      updatedAt: new Date(issue.updatedAt),
-      closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
+    // const docsToInsert = issuesWithReadableAttributes.map((issue) => ({
+    //   _key: issue.id,  
+    //   id: issue.id,
+    //   displayId: issue.displayId,
+    //   title: issue.title,
+    //   description: issue.description,
+    //   status: issue.status,
+    //   issueTypeName: issue.issueTypeName,
+    //   createdAt: new Date(issue.createdAt),
+    //   createdBy: issue.createdBy,
+    //   assignedTo: issue.assignedTo,
+    //   closedBy: issue.closedBy,
+    //   dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
+    //   updatedAt: new Date(issue.updatedAt),
+    //   closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
       
-    }));
+    // }));
 
-    const validDocs = [];
-    docsToInsert.forEach((doc, idx) => {
-      const ok = validateIssue(doc);
-      if (!ok) {
-        console.warn(
-          `Issue not valid in position ${idx}:`,
-          validateIssue.errors
-        );
-      } else {
-        validDocs.push(doc);
-      }
-    });
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateIssue(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `Issue not valid in position ${idx}:`,
+    //       validateIssue.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    if (validDocs.length === 0) {
-      return res.status(400).json({
-        data: null,
-        error: 'Not valied document finded',
-        message: 'Failed validation'
-      });
-    }
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    const collectionName = `${accountId}_${projectId}_issues`;
-    //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    await batchUpsert(collectionName, validDocs, 20);
-    //console.log(" Insert result:", insertResult);
+    // const collectionName = `${accountId}_${projectId}_issues`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs, 20);
+    // //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {

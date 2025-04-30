@@ -15,7 +15,7 @@ const client = axios.create({
     Authorization: `Basic ${basicAuth}`,
     "Content-Type": "application/json",
   },
-  timeout: 30000,
+  timeout: 60000,
 });
 
 const SCHEMA = "admin";

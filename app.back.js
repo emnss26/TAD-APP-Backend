@@ -8,6 +8,8 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 dotenv.config();
 
+//const { listCollections, getDocs, insertDocs } = require("./config/database");
+
 require ('./config/mongodb.js');
 
 const PORT = process.env.PORT || 3000;
@@ -17,7 +19,6 @@ const allowedOrigins = [
 ];
 
 const app = express();
-app.disable('etag');
 app.use(morgan("dev"));
 app.use(express.json({ limit: "150mb" }));
 app.use(express.urlencoded({ limit: "150mb", extended: true }));
@@ -81,6 +82,35 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter);
 
 app.use(cookieParser());
+
+
+// app.get("/db/collections", async (req, res) => {
+//   try {
+//     const cols = await listCollections();
+//     res.json(cols);
+//   } catch (e) {
+//     res.status(500).json({ error: e.toString() });
+//   }
+// });
+
+// app.get("/db/:col", async (req, res) => {
+//   try {
+//     const docs = await getDocs(req.params.col);
+//     res.json(docs);
+//   } catch (e) {
+//     res.status(500).json({ error: e.toString() });
+//   }
+// });
+
+// app.post("/db/:col", async (req, res) => {
+//   try {
+//     const result = await insertDocs(req.params.col, req.body);
+//     res.json(result);
+//   } catch (e) {
+//     res.status(500).json({ error: e.toString() });
+//   }
+// });
+
 
 app.use("/auth", require("./resources/auth/auth.router"));
 app.use("/general", require("./resources/general/general.route"));

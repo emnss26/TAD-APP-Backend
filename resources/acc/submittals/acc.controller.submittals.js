@@ -115,62 +115,62 @@ const GetSubmittals = async (req, res) => {
 
     //console.log ("Submittals with user details:", submittalsWithUserDetails     );
 
-    const docsToInsert = submittalsWithUserDetails.map((submittal) => ({
-      _key: submittal.id,
-      id: submittal.id,
-      title: submittal.title,
-      description: submittal.description,
-      stateId: submittal.stateId,
-      priority: submittal.priority,
-      specIdentifier: submittal.specIdentifier,
-      specTitle: submittal.specTitle,
-      submittedBy: submittal.submittedBy,
-      submitterByName: submittal.submittedByName,
-      submitterDueDate: submittal.submitterDueDate
-        ? new Date(submittal.submitterDueDate)
-        : null,
-      managerName: submittal.managerName,
-      submitterByName: submittal.submittedByName,
-      submitterDueDate: submittal.submitterDueDate
-        ? new Date(submittal.submitterDueDate)
-        : null,
-      updatedByName: submittal.updatedByName,
-      publishedByName: submittal.publishedByName,
-      sentToReviewByName: submittal.sentToReviewByName,
-      createdAt: new Date(submittal.createdAt),
-      createdBy: submittal.createdBy,
-      dueDate: submittal.dueDate
-        ? new Date(submittal.dueDate)
-        : null,
-      updatedAt: new Date(submittal.updatedAt),
-      updatedBy: submittal.updatedBy,
-    }));
+    // const docsToInsert = submittalsWithUserDetails.map((submittal) => ({
+    //   _key: submittal.id,
+    //   id: submittal.id,
+    //   title: submittal.title,
+    //   description: submittal.description,
+    //   stateId: submittal.stateId,
+    //   priority: submittal.priority,
+    //   specIdentifier: submittal.specIdentifier,
+    //   specTitle: submittal.specTitle,
+    //   submittedBy: submittal.submittedBy,
+    //   submitterByName: submittal.submittedByName,
+    //   submitterDueDate: submittal.submitterDueDate
+    //     ? new Date(submittal.submitterDueDate)
+    //     : null,
+    //   managerName: submittal.managerName,
+    //   submitterByName: submittal.submittedByName,
+    //   submitterDueDate: submittal.submitterDueDate
+    //     ? new Date(submittal.submitterDueDate)
+    //     : null,
+    //   updatedByName: submittal.updatedByName,
+    //   publishedByName: submittal.publishedByName,
+    //   sentToReviewByName: submittal.sentToReviewByName,
+    //   createdAt: new Date(submittal.createdAt),
+    //   createdBy: submittal.createdBy,
+    //   dueDate: submittal.dueDate
+    //     ? new Date(submittal.dueDate)
+    //     : null,
+    //   updatedAt: new Date(submittal.updatedAt),
+    //   updatedBy: submittal.updatedBy,
+    // }));
 
-    const validDocs = [];
-    docsToInsert.forEach((doc, idx) => {
-      const ok = validateSubmittals(doc);
-      if (!ok) {
-        console.warn(
-          `submittal not valid in position ${idx}:`,
-          validateSubmittals.errors
-        );
-      } else {
-        validDocs.push(doc);
-      }
-    });
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateSubmittals(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `submittal not valid in position ${idx}:`,
+    //       validateSubmittals.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    if (validDocs.length === 0) {
-      return res.status(400).json({
-        data: null,
-        error: 'Not valied document finded',
-        message: 'Failed validation'
-      });
-    }
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    const collectionName = `${accountId}_${projectId}_submittals`;
-    //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
-    await batchUpsert(collectionName, validDocs, 20);
-    //console.log(" Insert result:", insertResult);
+    // const collectionName = `${accountId}_${projectId}_submittals`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs, 20);
+    // //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {
