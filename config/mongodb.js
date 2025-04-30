@@ -9,9 +9,6 @@ if (!url) {
 mongoose
   .connect(url, {
     tls: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    ssl: true,
     retryWrites: false,
     maxPoolSize: 100,
     minPoolSize: 10,
