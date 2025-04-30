@@ -18,6 +18,7 @@ const allowedOrigins = [
 
 const app = express();
 app.disable('etag');
+app.set('trust proxy', 1);
 app.use(morgan("dev"));
 app.use(express.json({ limit: "150mb" }));
 app.use(express.urlencoded({ limit: "150mb", extended: true }));
