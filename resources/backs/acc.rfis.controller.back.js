@@ -1,14 +1,14 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
-const { insertDocs, upsertDoc } = require("../../../config/database");
-const { batchUpsert } = require("../../../config/database.helper.js");
+const { insertDocs, upsertDoc } = require("../../config/database.js");
+const { batchUpsert } = require("../../config/database.helper.js");
 
-const { mapUserIdsToNames } = require("../../../libs/utils/user.mapper.libs.js");
-const { fetchAllPaginatedResults } = require("../../../libs/utils/pagination.libs.js");
-const { getDb } = require("../../../config/mongodb");
+const { mapUserIdsToNames } = require("../../libs/utils/user.mapper.libs.js");
+const { fetchAllPaginatedResults } = require("../../libs/utils/pagination.libs.js");
+const { getDb } = require("../../config/mongodb.js");
 const rfisSchema = require("../rfis/acc.rfi.schema.js")
 
-const {validateRfis } = require("../../../config/database.schema.js");
+const {validateRfis } = require("../../config/database.schema.js");
 
 const GetRfis = async (req, res) => {
   const token = req.cookies["access_token"];

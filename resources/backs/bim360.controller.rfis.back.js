@@ -1,6 +1,9 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
+const { insertDocs,  upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
+
 const {
   mapUserIdsToNames,
 } = require("../../../libs/utils/user.mapper.libs.js");
@@ -8,10 +11,7 @@ const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
 
-const { getDb } = require("../../../config/mongodb");
-const rfiSchema = require("../../schemas/rfis.schema.js");
-
-const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
+const {validateRfis } = require("../../../config/database.schema.js");
 
 const GetRfis = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -45,7 +45,7 @@ const GetRfis = async (req, res) => {
         message: "No RFIs found for this project",
       });
     }
-
+    
     const userFields = [
       "createdBy",
       "assignedTo",
@@ -80,63 +80,54 @@ const GetRfis = async (req, res) => {
 
     //console.log('RFIs with names:', rfisdatawithnames);
 
-    const docs = rfisdatawithnames.map((rfi) => ({
-      _key: rfi.id,
-      projectId: projectId,
-      accountId: accountId,
-      customIdentifier: rfi.customIdentifier,
-      title: rfi.title,
-      discipline: rfi.discipline,
-      priority: rfi.priority,
-      status: rfi.status,
-      question: rfi.question,
-      officialResponse: rfi.officialResponse,
-      createdBy: rfi.createdBy,
-      assignedTo: rfi.assignedTo,
-      managerId: rfi.managerId,
-      respondedBy: rfi.respondedBy,
-      respondedAt: rfi.respondedAt ? new Date(rfi.respondedAt) : null,
-      createdAt: new Date(rfi.createdAt),
-      reviewerId: rfi.reviewerId,
-      updatedBy: rfi.updatedBy,
-      dueDate: rfi.dueDate ? new Date(rfi.dueDate) : null,
-      updatedAt: new Date(rfi.updatedAt),
-      closedAt: rfi.closedAt ? new Date(rfi.closedAt) : null,
-      closedBy: rfi.closedBy,
-    }));
+    // const docsToInsert = rfisdatawithnames.map((rfi) => ({
+    //   _key: rfi.customIdentifier,
+    //   customIdentifier: rfi.customIdentifier,
+    //   title: rfi.title,
+    //   discipline: rfi.discipline,
+    //   priority: rfi.priority,
+    //   status: rfi.status,
+    //   question : rfi.question,
+    //   officialResponse: rfi.officialResponse,
+    //   createdBy: rfi.createdBy,
+    //   assignedTo: rfi.assignedTo,
+    //   managerId: rfi.managerId,
+    //   respondedBy: rfi.respondedBy,
+    //   respondedAt: rfi.respondedAt ? new Date(rfi.respondedAt) : null,
+    //   createdAt: new Date(rfi.createdAt),
+    //   reviewerId: rfi.reviewerId,
+    //   updatedBy: rfi.updatedBy,
+    //   dueDate: rfi.dueDate ? new Date(rfi.dueDate) : null,
+    //   updatedAt: new Date(rfi.updatedAt),
+    //   closedAt: rfi.closedAt ? new Date(rfi.closedAt) : null,
+    //   closedBy: rfi.closedBy,
+    // }));
 
-    const db = getDb();
-    const safeAcc = sanitize(accountId);
-    const safeProj = sanitize(projectId);
-    const collName = `${safeAcc}_${safeProj}_rfis`;
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateRfis(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `RFI not valid in position ${idx}:`,
+    //       validateRfis.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    const RFI = db.model("RFI", rfiSchema, collName);
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    const existing = await RFI.find(
-      { projectId },
-      { _key: 1, updatedAt: 1 }
-    ).lean();
-    const existingMap = existing.reduce((m, d) => {
-      m[d._key] = d.updatedAt?.getTime() || 0;
-      return m;
-    }, {});
-
-    const toUpsert = docs.filter((doc) => {
-      const prev = existingMap[doc._key] ?? 0;
-      return !prev || doc.updatedAt.getTime() > prev;
-    });
-
-    const ops = toUpsert.map((doc) => ({
-      updateOne: {
-        filter: { _key: doc._key, projectId: doc.projectId },
-        update: { $set: doc },
-        upsert: true,
-      },
-    }));
-
-    if (ops.length > 0) {
-      await RFI.bulkWrite(ops, { ordered: false });
-    }
+    // const collectionName = `${accountId}_${projectId}_rfis`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs);
+    // //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {

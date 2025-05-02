@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const accrfiSchema = new mongoose.Schema(
+const rfiSchema = new mongoose.Schema(
   {
     _key: { type: String, required: true, index: true, unique: true },
     projectId: { type: String, required: true, index: true },
@@ -31,6 +31,6 @@ const accrfiSchema = new mongoose.Schema(
 );
 
 // índice único sobre proyecto + identificador
-accrfiSchema.index({ projectId: 1, customIdentifier: 1 }, { unique: true });
+rfiSchema.index({ projectId: 1, customIdentifier: 1 }, { unique: true });
 
-module.exports = accrfiSchema;
+module.exports = rfiSchema;

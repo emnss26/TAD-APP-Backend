@@ -12,7 +12,7 @@ mongoose
     retryWrites: false,
     maxPoolSize: 100,
     minPoolSize: 10,
-    serverSelectionTimeoutMS: 5000,
+    serverSelectionTimeoutMS: 30000,
   })
   .then(() => console.log("✅ MongoDB API connected"))
   .catch((err) => {

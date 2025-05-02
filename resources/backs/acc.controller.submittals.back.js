@@ -1,19 +1,17 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { GetSubmittalSpecId } = require("../../../libs/acc/acc.libs.js");
+const { GetSubmittalSpecId } = require("../../libs/acc/acc.libs.js");
 
 const {
   mapUserIdsToNames,
-} = require("../../../libs/utils/user.mapper.libs.js");
+} = require("../../libs/utils/user.mapper.libs.js");
 const {
   fetchAllPaginatedResults,
-} = require("../../../libs/utils/pagination.libs.js");
+} = require("../../libs/utils/pagination.libs.js");
 
-const { getDb } = require("../../../config/mongodb");
-const submittalsschema = require("../../schemas/submittals.schema.js");
-
-const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
+const { getDb } = require("../../config/mongodb.js");
+const accsubmittalsschema = require("../submittals/acc.submittals.schema.js");
 
 const stateMap = {
   "sbc-1": "Waiting for submission",
@@ -110,69 +108,64 @@ const GetSubmittals = async (req, res) => {
       })
     );
 
-    const docs = submittalsWithUserDetails.map((submittal) => ({
-      _key: submittal.id,
-      projectId: projectId,
-      accountId: accountId,
-      identifier: submittal.identifier,
-      id: submittal.id,
-      title: submittal.title,
-      description: submittal.description,
-      stateId: submittal.stateId,
-      priority: submittal.priority,
-      specIdentifier: submittal.specIdentifier,
-      specTitle: submittal.specTitle,
-      submittedBy: submittal.submittedBy,
-      submitterByName: submittal.submitterByName,
-      submitterDueDate: submittal.submitterDueDate ? new Date(submittal.submitterDueDate) : null,
-      managerName: submittal.managerName,
-      updatedByName: submittal.updatedByName,
-      publishedByName: submittal.publishedByName,
-      publishedDate: submittal.publishedDate ? new Date(submittal.publishedDate) : null,
-      sentToReviewByName: submittal.sentToReviewByName,
-      createdAt: submittal.createdAt ? new Date(submittal.createdAt) : null,
-      createdByName: submittal.createdByName,
-      dueDate: submittal.dueDate ? new Date(submittal.dueDate) : null,
-      updatedAt: submittal.updatedAt ? new Date(submittal.updatedAt) : null,
-      updatedBy: submittal.updatedBy,
-    }));
+    //console.log ("Submittals with user details:", submittalsWithUserDetails     );
 
-    //console.log ("projectId:", projectId);
-    //console.log ("accountId:", accountId);
-    //console.log ("Submittals:", submittalsWithUserDetails);
+    // const docsToInsert = submittalsWithUserDetails.map((submittal) => ({
+    //   _key: submittal.id,
+    //   id: submittal.id,
+    //   title: submittal.title,
+    //   description: submittal.description,
+    //   stateId: submittal.stateId,
+    //   priority: submittal.priority,
+    //   specIdentifier: submittal.specIdentifier,
+    //   specTitle: submittal.specTitle,
+    //   submittedBy: submittal.submittedBy,
+    //   submitterByName: submittal.submittedByName,
+    //   submitterDueDate: submittal.submitterDueDate
+    //     ? new Date(submittal.submitterDueDate)
+    //     : null,
+    //   managerName: submittal.managerName,
+    //   submitterByName: submittal.submittedByName,
+    //   submitterDueDate: submittal.submitterDueDate
+    //     ? new Date(submittal.submitterDueDate)
+    //     : null,
+    //   updatedByName: submittal.updatedByName,
+    //   publishedByName: submittal.publishedByName,
+    //   sentToReviewByName: submittal.sentToReviewByName,
+    //   createdAt: new Date(submittal.createdAt),
+    //   createdBy: submittal.createdBy,
+    //   dueDate: submittal.dueDate
+    //     ? new Date(submittal.dueDate)
+    //     : null,
+    //   updatedAt: new Date(submittal.updatedAt),
+    //   updatedBy: submittal.updatedBy,
+    // }));
 
-    const db = getDb();
-    const safeAcc = sanitize(accountId);
-    const safeProj = sanitize(projectId);
-    const collName = `${safeAcc}_${safeProj}_submittals`;
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateSubmittals(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `submittal not valid in position ${idx}:`,
+    //       validateSubmittals.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    const Submittal = db.model("Submittals", submittalsschema, collName);
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    const existing = await Submittal.find(
-      { projectId },
-      { _key: 1, updatedAt: 1 }
-    ).lean();
-    const existingMap = existing.reduce((m, d) => {
-      m[d._key] = d.updatedAt?.getTime() || 0;
-      return m;
-    }, {});
-
-    const toUpsert = docs.filter((doc) => {
-      const prev = existingMap[doc._key] ?? 0;
-      return !prev || doc.updatedAt.getTime() > prev;
-    });
-
-    const ops = toUpsert.map((doc) => ({
-      updateOne: {
-        filter: { _key: doc._key, projectId: doc.projectId },
-        update: { $set: doc },
-        upsert: true,
-      },
-    }));
-
-    if (ops.length > 0) {
-    await Submittal.bulkWrite(ops, { ordered: false });
-    }
+    // const collectionName = `${accountId}_${projectId}_submittals`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs, 20);
+    // //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {

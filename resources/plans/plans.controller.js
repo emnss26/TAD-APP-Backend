@@ -1,34 +1,37 @@
-const { default: axios } = require("axios");
-
-const { format } = require("morgan");
-
-const { insertDocs, upsertDoc, getDocs } = require("../../config/database");
-
+const mongoose = require("mongoose");
+const { getDb } = require("../../config/mongodb");
 const { validatePlansData } = require("../../config/database.schema");
-const ORDS_URL = process.env.ORDS_URL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const basicAuth = Buffer.from(`ADMIN:${ADMIN_PASSWORD}`).toString("base64");
 
-const client = axios.create({
-  baseURL: ORDS_URL,
-  headers: {
-    Authorization: `Basic ${basicAuth}`,
-    "Content-Type": "application/json",
+// Define a Mongoose schema for plans
+const plansSchema = new mongoose.Schema(
+  {
+    _key: { type: String, required: true, index: true, unique: true },
+    accountId: { type: String, required: true, index: true },
+    projectId: { type: String, required: true, index: true },
+    Id: { type: String, required: true },
+    SheetName: { type: String },
+    SheetNumber: { type: String },
+    Discipline: { type: String },
+    Revision: { type: String },
+    RevisionDate: { type: Date }
   },
-  timeout: 5000,
-});
+  { timestamps: false }
+);
 
-const SCHEMA = process.env.ORDS_SCHEMA || "admin";
+// Ensure combination of projectId and SheetNumber is unique
+plansSchema.index({ projectId: 1, SheetNumber: 1 }, { unique: true });
 
 function getCollName(accountId, projectId) {
-  return `${accountId}_${projectId}_plansdatabase`;
+  const acc = accountId.replace(/[^a-zA-Z0-9]/g, "_");
+  const proj = projectId.replace(/^b\./, "").replace(/[^a-zA-Z0-9]/g, "_");
+  return `${acc}_${proj}_plansdatabase`;
 }
 
 async function postDataModel(req, res) {
   const { projectId, accountId } = req.params;
   const rows = Array.isArray(req.body) ? req.body : [];
 
-  // 1) Filtrar filas que tengan un SheetNumber válido
+  // Filter only rows with a valid SheetNumber
   const candidates = rows.filter(r => r.SheetNumber && String(r.SheetNumber).trim());
   if (!candidates.length) {
     return res.status(400).json({
@@ -38,18 +41,18 @@ async function postDataModel(req, res) {
     });
   }
 
-  // 2) Validar solo los campos permitidos
+  // Validate fields against schema
   const validatedRows = candidates
     .map((r, i) => {
       const rowDoc = {
-        Id: r.Id,
+        Id: String(r.Id),
         SheetName: r.SheetName,
         SheetNumber: r.SheetNumber,
         Discipline: r.Discipline,
         Revision: r.Revision,
         RevisionDate: r.RevisionDate,
       };
-      // Quitar campos nulos antes de validar
+      // Remove null or undefined
       Object.keys(rowDoc).forEach(key => rowDoc[key] == null && delete rowDoc[key]);
 
       if (!validatePlansData(rowDoc)) {
@@ -68,7 +71,7 @@ async function postDataModel(req, res) {
     });
   }
 
-  // 3) Mapear a documentos con clave _key = SheetNumber
+  // Map to documents with composite keys
   const docs = validatedRows.map(r => ({
     _key: String(r.SheetNumber),
     accountId,
@@ -76,22 +79,27 @@ async function postDataModel(req, res) {
     ...r,
   }));
 
-  const coll = getCollName(accountId, projectId);
+  const db = getDb();
+  const collName = getCollName(accountId, projectId);
+  const PlansModel = db.model("PlansDatabase", plansSchema, collName);
 
   try {
-    const results = [];
-    for (const doc of docs) {
-      // upsertDoc se encargará de insertar o actualizar según exista o no _key
-      const result = await upsertDoc(coll, doc._key, doc);
-      results.push(result);
-    }
+    const ops = docs.map(doc => ({
+      updateOne: {
+        filter: { _key: doc._key },
+        update: { $set: doc },
+        upsert: true,
+      },
+    }));
+    await PlansModel.bulkWrite(ops, { ordered: false });
+
     return res.status(200).json({
       data: docs,
       error: null,
       message: `Procesados ${docs.length} documentos correctamente.`,
     });
   } catch (err) {
-    console.error("Error en postDataModel:", err);
+    console.error("Error en postDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message || String(err),
@@ -103,39 +111,26 @@ async function postDataModel(req, res) {
 async function getDataModel(req, res) {
   const { projectId, accountId } = req.params;
   const { discipline } = req.query;
-  const coll = getCollName(accountId, projectId);
+
+  const db = getDb();
+  const collName = getCollName(accountId, projectId);
+  const PlansModel = db.model("PlansDatabase", plansSchema, collName);
 
   try {
-    let items;
+    const filter = {};
     if (discipline && discipline.toLowerCase() !== "all disciplines") {
-      
-      try {
-        const qbe = { Discipline: discipline };
-        const url = `/${SCHEMA}/soda/latest/${coll}?action=query`;
-        const response = await client.post(url, qbe);
-        items = response.data.items;
-      } catch (err) {
-        
-        if (err.response && err.response.status === 404) {
-          items = [];
-        } else {
-          throw err;
-        }
-      }
-    } else {
-      
-      items = await getDocs(coll);
+      filter.Discipline = discipline;
     }
+    const items = await PlansModel.find(filter).lean();
 
-    console.log("Recuperados", items);
-
+    console.log("Recuperados (plans):", items);
     return res.status(200).json({
       data: items,
       error: null,
       message: "Datos recuperados correctamente",
     });
   } catch (err) {
-    console.error("Error al obtener docs:", err);
+    console.error("Error en getDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message,
@@ -145,9 +140,8 @@ async function getDataModel(req, res) {
 }
 
 async function patchDataModel(req, res) {
-  const { projectId, accountId, dbId } = req.params;
+  const { projectId, accountId, Id } = req.params;
   const { field, value } = req.body;
-  const coll = getCollName(accountId, projectId);
 
   if (!field || value === undefined) {
     return res.status(400).json({
@@ -157,41 +151,39 @@ async function patchDataModel(req, res) {
     });
   }
 
+  const db = getDb();
+  const collName = getCollName(accountId, projectId);
+  const PlansModel = db.model("PlansDatabase", plansSchema, collName);
+
+  if (!PlansModel.schema.path(field)) {
+    return res.status(400).json({
+      data: null,
+      error: `El campo '${field}' no existe en el esquema`,
+      message: "Campo inválido",
+    });
+  }
+
   try {
-    // 1) Recuperar el doc existente
-    const [existing] = await getDocs(
-      `${coll}?filter=dbId eq '${encodeURIComponent(dbId)}'`
+    const result = await PlansModel.updateOne(
+      { _key: String(Id) },
+      { $set: { [field]: value } }
     );
-    if (!existing) {
+
+    if (result.modifiedCount === 0) {
       return res.status(404).json({
         data: null,
-        error: "No encontrado",
-        message: `No existe modelo con dbId ${dbId}`,
+        error: null,
+        message: `No se encontró elemento con Id ${Id} o no cambió valor`,
       });
     }
-
-    // 2) Actualizar el campo
-    const updatedDoc = { ...existing, [field]: value };
-
-    // 3) Validar contra el esquema completo
-    if (!validatePlansData(updatedDoc)) {
-      return res.status(400).json({
-        data: null,
-        error: "Validación fallida",
-        message: validatePlansData.errors,
-      });
-    }
-
-    // 4) Upsert del documento completo
-    await upsertDoc(coll, dbId, updatedDoc);
 
     return res.status(200).json({
-      data: updatedDoc,
+      data: null,
       error: null,
       message: `Campo '${field}' actualizado correctamente`,
     });
   } catch (err) {
-    console.error("Error en patchDataModel:", err);
+    console.error("Error en patchDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message,

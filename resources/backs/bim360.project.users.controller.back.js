@@ -1,10 +1,10 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const projectUsersSchema = require("../../schemas/project.users.schema.js");
-const { getDb } = require("../../../config/mongodb");
+const { insertDocs, upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
 
-const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
+const { validateUsers } = require("../../../config/database.schema.js");
 
 const GetProjectUsers = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -45,37 +45,43 @@ const GetProjectUsers = async (req, res) => {
 
     //console.log('All Users:', allProjectUsers[0].projectId);
 
-    const docs = allProjectUsers.map((user) => ({
-      _key: user.email,
-      projectId: user.projectId,
-      accountId: accountId,
-      email: user.email,
-      name: user.name,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      status: user.status,
-      companyName: user.companyName,
-      roles: user.roles,
-      accessLevel: user.accessLevel,
-    }));
+    // const docsToInsert = allProjectUsers.map((user) => ({
+    //   _key: user.email,
+    //   email: user.email,
+    //   name: user.name,
+    //   firstName: user.firstName,
+    //   lastName: user.lastName,
+    //   status: user.status,
+    //   companyName: user.companyName,
+            
+    // }));
 
-    const db = getDb();
-    const safeAcc = sanitize(accountId);
-    const safeProj = sanitize(projectId);
-    const collName = `${safeAcc}_projects_${safeProj}_users`;
-    const Users = db.model("Users", projectUsersSchema, collName);
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateUsers(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `User not valid in position ${idx}:`,
+    //       validateUsers.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    const ops = docs.map(doc => ({
-      updateOne: {
-        filter: { _key: doc._key, projectId: doc.projectId },
-        update: { $set: doc },
-        upsert: true,
-      }
-    }));
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    if (ops.length) {
-      await Users.bulkWrite(ops, { ordered: false });
-    }
+    // const collectionName = `${accountId}_${projectId}_users`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs, 20);
+    // //console.log(" Insert result:", insertResult);
+
 
     res.status(200).json({
       data: {
@@ -88,8 +94,8 @@ const GetProjectUsers = async (req, res) => {
     console.error("Error fetching project users:", error.message || error);
     res.status(500).json({
       data: null,
-      error: error.message || error,
-      message: "Error fetching project users",
+      error: null,
+      message: "Error to access the project users",
     });
   }
 };

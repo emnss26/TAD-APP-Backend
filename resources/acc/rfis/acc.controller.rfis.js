@@ -1,16 +1,17 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { mapUserIdsToNames } = require("../../../libs/utils/user.mapper.libs.js");
-const { fetchAllPaginatedResults } = require("../../../libs/utils/pagination.libs.js");
+const {
+  mapUserIdsToNames,
+} = require("../../../libs/utils/user.mapper.libs.js");
+const {
+  fetchAllPaginatedResults,
+} = require("../../../libs/utils/pagination.libs.js");
+
 const { getDb } = require("../../../config/mongodb");
-const accrfiSchema = require("../rfis/acc.rfi.schema.js")
+const rfiSchema = require("../../schemas/rfis.schema.js");
 
-const {sanitize} = require ("../../../libs/utils/sanitaze.db.js")
-
-const {validateRfis } = require("../../../config/database.schema.js");
-
-
+const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
 
 const GetRfis = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -77,6 +78,8 @@ const GetRfis = async (req, res) => {
       };
     });
 
+    //console.log("RFIs with names:", rfisdatawithnames);
+
     const docs = rfisdatawithnames.map((rfi) => ({
       _key: rfi.id,
       projectId: projectId,
@@ -86,7 +89,7 @@ const GetRfis = async (req, res) => {
       discipline: rfi.discipline,
       priority: rfi.priority,
       status: rfi.status,
-      question : rfi.question,
+      question: rfi.question,
       officialResponse: rfi.officialResponse,
       createdBy: rfi.createdBy,
       assignedTo: rfi.assignedTo,
@@ -102,57 +105,49 @@ const GetRfis = async (req, res) => {
       closedBy: rfi.closedBy,
     }));
 
-    console.log ("projectId:", projectId);
-    console.log ("accountId:", accountId);
+    //console.log ("projectId:", projectId);
+    //console.log ("accountId:", accountId);
 
-    const db    = getDb();
-    const safeAcc      = sanitize(accountId);
-    const safeProj     = sanitize(projectId);
-    const collName     = `${safeAcc}_${safeProj}_rfis`;
+    const db = getDb();
+    const safeAcc = sanitize(accountId);
+    const safeProj = sanitize(projectId);
+    const collName = `${safeAcc}_${safeProj}_rfis`;
 
-    const RFI = db.model(
-      "RFI",
-      accrfiSchema,
-      collName
-    );
+    const RFI = db.model("RFI", rfiSchema, collName);
 
-    const existing = await RFI
-      .find({ projectId }, { _key: 1, updatedAt: 1 })
-      .lean();
+    const existing = await RFI.find(
+      { projectId },
+      { _key: 1, updatedAt: 1 }
+    ).lean();
     const existingMap = existing.reduce((m, d) => {
       m[d._key] = d.updatedAt?.getTime() || 0;
       return m;
     }, {});
 
-    const toUpsert = docs.filter(doc => {
+    const toUpsert = docs.filter((doc) => {
       const prev = existingMap[doc._key] ?? 0;
-      return (!prev) || (doc.updatedAt.getTime() > prev);
+      return !prev || doc.updatedAt.getTime() > prev;
     });
 
-    if (toUpsert.length === 0) {
-      return res.status(200).json({
-        data:    { rfis: [] },
-        message: "No hay issues nuevos o actualizados."
-      });
-    }
-
-    const ops = toUpsert.map(doc => ({
+    const ops = toUpsert.map((doc) => ({
       updateOne: {
         filter: { _key: doc._key, projectId: doc.projectId },
         update: { $set: doc },
-        upsert: true
-      }
+        upsert: true,
+      },
     }));
-    await RFI.bulkWrite(ops, { ordered: false });
 
-    console.log("Insert result:", ops);
-    console.log("RFIs with names:", rfisdatawithnames);
-    console.log("→ usando MongoDB database:", db);
+    if (ops.length > 0) {
+      await RFI.bulkWrite(ops, { ordered: false });
+    }
+
+    //console.log("Insert result:", ops);
+    //console.log("RFIs with names:", rfisdatawithnames);
+    //console.log("→ usando MongoDB database:", db);
 
     res.status(200).json({
       data: {
         rfis: rfisdatawithnames,
-        rfisInserted: ops
       },
       error: null,
       message: `Rfis fetched successfully & ${toUpsert.length} RFIs sincronizados.`,
