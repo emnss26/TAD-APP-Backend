@@ -2,26 +2,44 @@
   "version": 2,
   "builds": [
     {
-      "src": "app.js",
+      "src": "api/**/*.js",
       "use": "@vercel/node"
     }
   ],
+  "functions": {
+    
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  },
   "routes": [
     
     {
       "src": "/modeldata/(.*)",
+      "methods": ["OPTIONS"],
+      "dest": "/api/index.js",
       "headers": {
         "Access-Control-Allow-Origin": "https://tad-app-fronend.vercel.app",
         "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type,Authorization,Accept",
         "Access-Control-Allow-Credentials": "true"
-      },
-      "dest": "/app.js"
+      }
+    },
+    
+    {
+      "src": "/modeldata/(.*)",
+      "dest": "/api/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://tad-app-fronend.vercel.app",
+        "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,Accept",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     
     {
       "src": "/(.*)",
-      "dest": "/app.js"
+      "dest": "/api/index.js"
     }
   ]
 }

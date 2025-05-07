@@ -8,7 +8,7 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 dotenv.config();
 
-require ('./config/mongodb.js');
+require ('../config/mongodb.js');
 
 const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
@@ -99,19 +99,19 @@ app.use(globalLimiter);
 
 app.use(cookieParser());
 
-app.use("/auth", require("./resources/auth/auth.router"));
-app.use("/general", require("./resources/general/general.route"));
-app.use("/acc", require("./resources/acc/acc.router"));
-app.use("/bim360", require("./resources/bim360/bim360.router"));
-app.use("/datamanagement", require("./resources/datamanagement/datamanagement.router"));
-app.use('/modeldata', require ("./resources/model/model.router.js"));
-app.use('/plans', require ("./resources/plans/plans.router.js"));
-app.use('/task', require ("./resources/task/task.router.js"));
-app.use('/ai-users', require ("./openai/general/users.google.ai.js"));
-app.use('/ai-issues', require ("./openai/general/issues.google.ai.js"));
-app.use('/ai-submittlas', require ("./openai/general/submittals.google.ai.js"));
-app.use('/ai-rfis', require ("./openai/general/rfis.google.ai.js"));
-app.use('/ai-modeldata', require ("./openai/general/model.google.ai.js"));
+app.use("/auth", require("../resources/auth/auth.router.js"));
+app.use("/general", require("../resources/general/general.route.js"));
+app.use("/acc", require("../resources/acc/acc.router.js"));
+app.use("/bim360", require("../resources/bim360/bim360.router.js"));
+app.use("/datamanagement", require("../resources/datamanagement/datamanagement.router.js"));
+app.use('/modeldata', require ("../resources/model/model.router.js"));
+app.use('/plans', require ("../resources/plans/plans.router.js"));
+app.use('/task', require ("../resources/task/task.router.js"));
+app.use('/ai-users', require ("../openai/general/users.google.ai.js"));
+app.use('/ai-issues', require ("../openai/general/issues.google.ai.js"));
+app.use('/ai-submittlas', require ("../openai/general/submittals.google.ai.js"));
+app.use('/ai-rfis', require ("../openai/general/rfis.google.ai.js"));
+app.use('/ai-modeldata', require ("../openai/general/model.google.ai.js"));
 
 app.get("/", (req, res) => {
   res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });
