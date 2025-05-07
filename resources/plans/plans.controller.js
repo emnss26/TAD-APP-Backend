@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { getDb } = require("../../config/mongodb");
+const  getDb  = require("../../config/mongodb");
 const { validatePlansData } = require("../../config/database.schema");
 
 // Define a Mongoose schema for plans
@@ -79,7 +79,7 @@ async function postDataModel(req, res) {
     ...r,
   }));
 
-  const db = getDb();
+  const db = await getDb();
   const collName = getCollName(accountId, projectId);
   const PlansModel = db.model("PlansDatabase", plansSchema, collName);
 
@@ -112,7 +112,7 @@ async function getDataModel(req, res) {
   const { projectId, accountId } = req.params;
   const { discipline } = req.query;
 
-  const db = getDb();
+  const db = await getDb();
   const collName = getCollName(accountId, projectId);
   const PlansModel = db.model("PlansDatabase", plansSchema, collName);
 
@@ -151,7 +151,7 @@ async function patchDataModel(req, res) {
     });
   }
 
-  const db = getDb();
+  const db = await getDb();
   const collName = getCollName(accountId, projectId);
   const PlansModel = db.model("PlansDatabase", plansSchema, collName);
 

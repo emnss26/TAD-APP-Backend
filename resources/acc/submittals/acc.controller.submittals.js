@@ -10,7 +10,7 @@ const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
 
-const { getDb } = require("../../../config/mongodb");
+const  getDb  = require("../../../config/mongodb");
 const submittalsschema = require("../../schemas/submittals.schema.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
@@ -141,7 +141,7 @@ const GetSubmittals = async (req, res) => {
     //console.log ("accountId:", accountId);
     //console.log ("Submittals:", submittalsWithUserDetails);
 
-    const db = getDb();
+    const db = await getDb();
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
     const collName = `${safeAcc}_${safeProj}_submittals`;

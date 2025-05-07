@@ -1,7 +1,7 @@
 const { default: axios } = require("axios");
 
 const modeldatabaseSchema = require("../../resources/schemas/model.schema");
-const { getDb } = require("../../config/mongodb");
+const getDb  = require("../../config/mongodb");
 const { validateModelData } = require("../../config/database.schema");
 
 function getCollName(accountId, projectId) {
@@ -43,7 +43,7 @@ async function postDataModel(req, res) {
     });
   }
 
-  const db = getDb(accountId, projectId);
+  const db = await getDb(accountId, projectId);
   const collName = getCollName(accountId, projectId);
   const ModelDB = db.model("ModelDatabase", modeldatabaseSchema, collName);
 
@@ -76,7 +76,7 @@ async function getDataModel(req, res) {
   const { accountId, projectId } = req.params;
   const { discipline } = req.query;
 
-  const db = getDb(accountId, projectId);
+  const db = await getDb(accountId, projectId);
   const collName = getCollName(accountId, projectId);
   const ModelDB = db.model("ModelDatabase", modeldatabaseSchema, collName);
 
@@ -117,7 +117,7 @@ async function patchDataModel(req, res) {
     });
   }
 
-  const db = getDb(accountId, projectId);
+  const db = await getDb(accountId, projectId);
   const collName = getCollName(accountId, projectId);
   const ModelDB = db.model("ModelDatabase", modeldatabaseSchema, collName);
 

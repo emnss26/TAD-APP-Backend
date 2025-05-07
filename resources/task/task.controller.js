@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { getDb } = require("../../config/mongodb.js");
+const  getDb  = require("../../config/mongodb.js");
 const taskSchema = require("../../resources/schemas/task.schema.js");
 
 // Genera el nombre de colección según cuenta y proyecto
@@ -55,7 +55,7 @@ const createTask = async (req, res) => {
     });
   }
 
-  const db = getDb();
+  const db = await getDb();
   const collectionName = getCollName(accountId, projectId);
   // Usar el nombre de colección también como nombre de modelo para evitar colisiones
   const Task = db.model(collectionName, taskSchema, collectionName);
@@ -88,7 +88,7 @@ const createTask = async (req, res) => {
 // Obtener todas las tareas
 const getAllTasks = async (req, res) => {
   const { accountId, projectId } = req.params;
-  const db = getDb();
+  const db = await getDb();
   const collectionName = getCollName(accountId, projectId);
   const Task = db.model(collectionName, taskSchema, collectionName);
 
@@ -104,7 +104,7 @@ const getAllTasks = async (req, res) => {
 // Actualizar una tarea por su _key
 const updateTask = async (req, res) => {
   const { accountId, projectId, id } = req.params;
-  const db = getDb();
+  const db = await getDb();
   const collectionName = getCollName(accountId, projectId);
   const Task = db.model(collectionName, taskSchema, collectionName);
 
@@ -141,7 +141,7 @@ const updateTask = async (req, res) => {
 // Eliminar una tarea por su _key
 const deleteTask = async (req, res) => {
   const { projectId, accountId, id } = req.params;
-  const db = getDb();
+  const db = await getDb();
   const collectionName = getCollName(accountId, projectId);
   const Task = db.model(collectionName, taskSchema, collectionName);
 

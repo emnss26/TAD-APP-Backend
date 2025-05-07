@@ -2,7 +2,7 @@ const { default: axios } = require("axios");
 const { format } = require("morgan");
 
 const projectUsersSchema = require("../../schemas/project.users.schema.js");
-const { getDb } = require("../../../config/mongodb");
+const  getDb  = require("../../../config/mongodb");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
 
@@ -59,7 +59,7 @@ const GetProjectUsers = async (req, res) => {
       accessLevel: user.accessLevel,
     }));
 
-    const db = getDb();
+    const db = await getDb();
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
     const collName = `${safeAcc}_${safeProj}_users`;

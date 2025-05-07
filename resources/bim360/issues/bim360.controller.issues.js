@@ -16,7 +16,7 @@ const {
   enrichCustomAttributes,
 } = require("../../../libs/utils/attibute.mapper.libs.js");
 
-const { getDb } = require("../../../config/mongodb");
+const  getDb  = require("../../../config/mongodb");
 const issuesSchema = require("../../schemas/issues.schema.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
@@ -127,7 +127,7 @@ const GetIssues = async (req, res) => {
     //console.log("issues", issuesWithReadableAttributes)
     //console.log("issues length", issuesWithReadableAttributes.length)
 
-    const db = getDb();
+    const db = await getDb();
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
     const collName = `${safeAcc}_${safeProj}_issues`;
