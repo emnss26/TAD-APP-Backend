@@ -12,9 +12,9 @@ if (!connPromise) {
   connPromise = mongoose.connect(url, {
     tls: true,
     retryWrites: false,
-    maxPoolSize: 5000,
+    maxPoolSize: 50000,
     minPoolSize: 10,
-    serverSelectionTimeoutMS: 90000,
+    serverSelectionTimeoutMS: 900000,
   });
   global._mongooseConnectionPromise = connPromise;
 }
