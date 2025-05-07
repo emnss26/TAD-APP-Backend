@@ -62,7 +62,7 @@ const GetProjectUsers = async (req, res) => {
     const db = getDb();
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
-    const collName = `${safeAcc}_projects_${safeProj}_users`;
+    const collName = `${safeAcc}_${safeProj}_users`;
     const Users = db.model("Users", projectUsersSchema, collName);
 
     const ops = docs.map(doc => ({

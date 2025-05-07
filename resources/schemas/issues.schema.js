@@ -18,7 +18,7 @@ const issuesSchema = new mongoose.Schema(
     closedBy: String,
     dueDate: Date,
     updatedAt: Date,
-    updatedAtBy: String,
+    updatedBy: String,
     closedAt: Date,
   },
   {

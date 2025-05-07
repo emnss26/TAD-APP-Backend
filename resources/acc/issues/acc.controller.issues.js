@@ -124,6 +124,9 @@ const GetIssues = async (req, res) => {
     //console.log ("projectId:", projectId);
     //console.log ("accountId:", accountId);
 
+    //console.log("issues", issuesWithReadableAttributes)
+    //console.log("issues length", issuesWithReadableAttributes.length)
+
     const db = getDb();
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);

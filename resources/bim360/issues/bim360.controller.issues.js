@@ -100,8 +100,6 @@ const GetIssues = async (req, res) => {
       attributeValueMap
     );
 
-    //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes);
-
     const docs = issuesWithReadableAttributes.map((issue) => ({
       _key: issue.id,
       projectId: projectId,
@@ -112,19 +110,22 @@ const GetIssues = async (req, res) => {
       description: issue.description,
       status: issue.status,
       issueTypeName: issue.issueTypeName,
-      createdAt: issue.createdAt ? new Date(issue.respondedAt) : null,
+      createdAt: issue.createdAt ? new Date(issue.createdAt) : null,
       createdBy: issue.createdBy,
       openBy: issue.openedBy,
       assignedTo: issue.assignedTo,
       closedBy: issue.closedBy,
-      dueDate: issue.dueDate ? new Date(issue.respondedAt) : null,
-      updatedAt: issue.updatedAt ? new Date(issue.respondedAt) : null,
+      dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
+      updatedAt: issue.updatedAt ? new Date(issue.updatedAt) : null,
       updatedBy: issue.updatedBy,
-      closedAt: issue.closedAt ? new Date(issue.respondedAt) : null,
+      closedAt: issue.closedAt ? new Date(issue.updatedAt) : null,
     }));
 
-    //console.log ("projectId:", projectId);
-    //console.log ("accountId:", accountId);
+    //console.log("projectId:", projectId);
+    //console.log("accountId:", accountId);
+
+    //console.log("issues", issuesWithReadableAttributes)
+    //console.log("issues length", issuesWithReadableAttributes.length)
 
     const db = getDb();
     const safeAcc = sanitize(accountId);

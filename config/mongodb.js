@@ -10,9 +10,9 @@ mongoose
   .connect(url, {
     tls: true,
     retryWrites: false,
-    maxPoolSize: 100,
+    maxPoolSize: 1000,
     minPoolSize: 10,
-    serverSelectionTimeoutMS: 30000,
+    serverSelectionTimeoutMS: 60000,
   })
   .then(() => console.log("✅ MongoDB API connected"))
   .catch((err) => {

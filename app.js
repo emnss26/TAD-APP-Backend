@@ -93,6 +93,11 @@ app.use("/datamanagement", require("./resources/datamanagement/datamanagement.ro
 app.use('/modeldata', require ("./resources/model/model.router.js"));
 app.use('/plans', require ("./resources/plans/plans.router.js"));
 app.use('/task', require ("./resources/task/task.router.js"));
+app.use('/ai-users', require ("./openai/general/users.google.ai.js"));
+app.use('/ai-issues', require ("./openai/general/issues.google.ai.js"));
+app.use('/ai-submittlas', require ("./openai/general/submittals.google.ai.js"));
+app.use('/ai-rfis', require ("./openai/general/rfis.google.ai.js"));
+app.use('/ai-modeldata', require ("./openai/general/model.google.ai.js"));
 
 app.get("/", (req, res) => {
   res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });
