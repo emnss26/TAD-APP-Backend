@@ -8,7 +8,7 @@
     "app.js": { "maxDuration": 90 }
   },
   "routes": [
-    
+
     {
       "src": "/modeldata/(.*)",
       "methods": ["OPTIONS"],
