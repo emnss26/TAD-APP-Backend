@@ -1,5 +1,5 @@
 const modeldatabaseSchema = require("../../resources/schemas/model.schema");
-const getDb  = require("../../config/mongodb");
+const getDb              = require("../../config/mongodb");
 const { validateModelData } = require("../../config/database.schema");
 
 function getCollName(accountId, projectId) {
@@ -28,11 +28,13 @@ async function postDataModel(req, res) {
 
   if (!docs.length) {
     return res.status(400).json({
-      data: [], error: "No hay filas válidas", message: "Añade al menos un elemento con dbId válido"
+      data: [],
+      error: "No hay filas válidas",
+      message: "Añade al menos un elemento con dbId válido"
     });
   }
 
-  // 2) Conexión y modelo
+  // 2) Conectar y preparar modelo
   const db       = await getDb();
   const collName = getCollName(accountId, projectId);
   const ModelDB  = db.model("ModelDatabase", modeldatabaseSchema, collName);
@@ -47,17 +49,24 @@ async function postDataModel(req, res) {
   }));
 
   try {
-    // 4) Ejecutar en lotes de 500
-    const BATCH_SIZE = 500;
+    // 4) Ejecutar batches en paralelo
+    const BATCH_SIZE = 200; // ajusta según necesites
+    const writePromises = [];
+
     for (let i = 0; i < ops.length; i += BATCH_SIZE) {
-      const batch = ops.slice(i, i + BATCH_SIZE);
-      await ModelDB.bulkWrite(batch, { ordered: false });
+      const batchOps = ops.slice(i, i + BATCH_SIZE);
+      writePromises.push(
+        ModelDB.bulkWrite(batchOps, { ordered: false })
+      );
     }
+
+    // Esperamos a que todos los batches terminen
+    await Promise.all(writePromises);
 
     return res.status(200).json({
       data: docs,
       error: null,
-      message: `Procesados ${docs.length} documentos en ${Math.ceil(ops.length / BATCH_SIZE)} lotes`
+      message: `Procesados ${docs.length} documentos en ${writePromises.length} lotes paralelos.`
     });
   } catch (err) {
     console.error("Error en postDataModel:", err);
@@ -83,10 +92,18 @@ async function getDataModel(req, res) {
       filter.Discipline = discipline;
     }
     const items = await ModelDB.find(filter).lean();
-    return res.status(200).json({ data: items, error: null, message: "Datos recuperados correctamente" });
+    return res.status(200).json({
+      data: items,
+      error: null,
+      message: "Datos recuperados correctamente"
+    });
   } catch (err) {
     console.error("Error en getDataModel:", err);
-    return res.status(500).json({ data: null, error: err.message, message: "No se pudieron recuperar los datos" });
+    return res.status(500).json({
+      data: null,
+      error: err.message,
+      message: "No se pudieron recuperar los datos"
+    });
   }
 }
 
@@ -95,7 +112,11 @@ async function patchDataModel(req, res) {
   const { field, value } = req.body;
 
   if (!field || value === undefined) {
-    return res.status(400).json({ data: null, error: "Faltan 'field' o 'value'", message: "Proporciona field y value" });
+    return res.status(400).json({
+      data: null,
+      error: "Faltan 'field' o 'value'",
+      message: "Proporciona field y value"
+    });
   }
 
   const db       = await getDb();
@@ -103,19 +124,44 @@ async function patchDataModel(req, res) {
   const ModelDB  = db.model("ModelDatabase", modeldatabaseSchema, collName);
 
   if (!ModelDB.schema.path(field)) {
-    return res.status(400).json({ data: null, error: `El campo '${field}' no existe`, message: "Campo inválido" });
+    return res.status(400).json({
+      data: null,
+      error: `El campo '${field}' no existe`,
+      message: "Campo inválido"
+    });
   }
 
   try {
-    const result = await ModelDB.updateOne({ dbId: String(dbId) }, { $set: { [field]: value } });
+    const result = await ModelDB.updateOne(
+      { dbId: String(dbId) },
+      { $set: { [field]: value } }
+    );
+
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ data: null, error: null, message: `dbId ${dbId} no encontrado o sin cambios` });
+      return res.status(404).json({
+        data: null,
+        error: null,
+        message: `dbId ${dbId} no encontrado o sin cambios`
+      });
     }
-    return res.status(200).json({ data: null, error: null, message: `Campo '${field}' actualizado` });
+
+    return res.status(200).json({
+      data: null,
+      error: null,
+      message: `Campo '${field}' actualizado correctamente`
+    });
   } catch (err) {
     console.error("Error en patchDataModel:", err);
-    return res.status(500).json({ data: null, error: err.message, message: "Error al actualizar" });
+    return res.status(500).json({
+      data: null,
+      error: err.message,
+      message: "Error al actualizar el documento"
+    });
   }
 }
 
-module.exports = { postDataModel, getDataModel, patchDataModel };
+module.exports = {
+  postDataModel,
+  getDataModel,
+  patchDataModel
+};
