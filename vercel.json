@@ -5,10 +5,10 @@
   ],
   "functions": {
     
-    "app.js": { "maxDuration": 60 }
+    "app.js": { "maxDuration": 90 }
   },
   "routes": [
-  
+    
     {
       "src": "/modeldata/(.*)",
       "methods": ["OPTIONS"],
