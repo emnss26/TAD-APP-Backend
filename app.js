@@ -22,15 +22,19 @@ app.set('trust proxy', 1);
 app.use(morgan("dev"));
 app.use(express.json({ limit: "150mb" }));
 app.use(express.urlencoded({ limit: "150mb", extended: true }));
+
 app.use(
   cors({
-    origin: (origin, cb) =>
-      !origin || allowedOrigins.includes(origin)
-        ? cb(null, true)
-        : cb(new Error("Not allowed by CORS")),
+    origin: allowedOrigins,
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization'],
     credentials: true,
+    optionsSuccessStatus: 204  
   })
 );
+
+app.options('*', cors());
+
 app.use(helmet());
 app.use(
   helmet.contentSecurityPolicy({
@@ -51,6 +55,8 @@ app.use(
         "'self'",
         "https://developer.api.autodesk.com",
         "https://cdn.derivative.autodesk.com",
+        "https://tad-app-backend.vercel.app",
+        "https://tad-app-frontend.vercel.app",
       ],
     },
   })
