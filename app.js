@@ -33,8 +33,6 @@ app.use(
   })
 );
 
-app.options('*', cors());
-
 app.use(helmet());
 app.use(
   helmet.contentSecurityPolicy({
@@ -57,7 +55,7 @@ app.use(
         "https://cdn.derivative.autodesk.com",
         "https://tad-app-backend.vercel.app",
         "https://tad-app-fronend.vercel.app",
-        
+
       ],
     },
   })
