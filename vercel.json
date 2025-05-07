@@ -8,7 +8,7 @@
   ],
   "functions": {
     "app.js": { 
-      "maxDuration": 60
+      "maxDuration": 15
     }
   },
   "routes": [
