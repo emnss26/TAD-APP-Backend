@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { getDb } = require("../../config/mongodb.js");
+const getDb  = require("../../config/mongodb.js");
 const projectUsersSchema = require("../../resources/schemas/project.users.schema.js");
 const { sanitize } = require("../../libs/utils/sanitaze.db.js");
 
@@ -28,7 +28,7 @@ router.post("/users", async (req, res) => {
       "Project ID:",
       projectId
     );
-    const db = getDb();
+    const db = await getDb();
 
     if (projectId.startsWith("b.")) {
       projectId = projectId.substring(2);

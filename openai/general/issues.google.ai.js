@@ -1,6 +1,6 @@
 const express = require("express");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { getDb } = require("../../config/mongodb.js");
+const getDb  = require("../../config/mongodb.js");
 
 const issuesSchema = require("../../resources/schemas/issues.schema.js");
 
@@ -30,7 +30,7 @@ router.post("/issues", async (req, res) => {
       "Project ID:",
       projectId
     );
-    const db = getDb();
+    const db = await getDb();
 
     if (projectId.startsWith("b.")) {
       projectId = projectId.substring(2);

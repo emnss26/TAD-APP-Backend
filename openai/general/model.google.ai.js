@@ -1,6 +1,6 @@
 const express = require("express");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { getDb } = require("../../config/mongodb.js");
+const  getDb  = require("../../config/mongodb.js");
 const modelSchema = require("../../resources/schemas/model.schema.js");
 const { sanitize } = require("../../libs/utils/sanitaze.db.js");
 
@@ -17,7 +17,7 @@ router.post("/model-da", async (req, res) => {
   }
 
   try {
-    const db = getDb();
+    const db = await getDb();
     const projId = projectId.startsWith("b.") ? projectId.substring(2) : projectId;
     const coll = `${sanitize(accountId)}_${sanitize(projId)}_models`;
     const Models = db.model("Models", modelSchema, coll);
