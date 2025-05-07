@@ -56,7 +56,8 @@ app.use(
         "https://developer.api.autodesk.com",
         "https://cdn.derivative.autodesk.com",
         "https://tad-app-backend.vercel.app",
-        "https://tad-app-frontend.vercel.app",
+        "https://tad-app-fronend.vercel.app",
+        
       ],
     },
   })
