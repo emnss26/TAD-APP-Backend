@@ -19,7 +19,7 @@ const allowedOrigins = [
 const app = express();
 app.disable('etag');
 app.set('trust proxy', 1);
-app.use(morgan("dev"));
+
 app.use(express.json({ limit: "250mb" }));
 app.use(express.urlencoded({ limit: "250mb", extended: true }));
 
@@ -34,7 +34,9 @@ app.use(
   })
 );
 
-//app.options('*', cors());
+app.options(/.*/, cors());
+
+app.use(morgan("dev"));
 
 app.use(helmet());
 app.use(
@@ -114,6 +116,7 @@ app.use('/ai-modeldata', require ("./openai/general/model.google.ai.js"));
 app.get("/", (req, res) => {
   res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });
 });
+
 
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
