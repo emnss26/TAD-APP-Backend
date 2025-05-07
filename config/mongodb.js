@@ -7,7 +7,6 @@ if (!url) {
   process.exit(1);
 }
 
-// Cache the connection promise in the global object to reuse across invocations
 let connPromise = global._mongooseConnectionPromise;
 if (!connPromise) {
   connPromise = mongoose.connect(url, {
@@ -20,7 +19,6 @@ if (!connPromise) {
   global._mongooseConnectionPromise = connPromise;
 }
 
-// Log successful connection or errors
 connPromise
   .then(() => console.log('✅ MongoDB API connected'))
   .catch((err) => {
@@ -28,7 +26,7 @@ connPromise
     process.exit(1);
   });
 
-// Monitor connection events
+
 mongoose.connection.on('disconnected', () =>
   console.warn('⚠️  MongoDB disconnected')
 );

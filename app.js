@@ -20,8 +20,8 @@ const app = express();
 app.disable('etag');
 app.set('trust proxy', 1);
 app.use(morgan("dev"));
-app.use(express.json({ limit: "150mb" }));
-app.use(express.urlencoded({ limit: "150mb", extended: true }));
+app.use(express.json({ limit: "250mb" }));
+app.use(express.urlencoded({ limit: "250mb", extended: true }));
 
 app.use(
   cors({
@@ -45,12 +45,16 @@ app.use(
         "'self'",
         "https://trusted.cdn.com",
         "https://cdn.derivative.autodesk.com",
+        "https://tad-app-backend.vercel.app",
+        "https://tad-app-fronend.vercel.app",
       ],
       imgSrc: [
         "'self'",
         "data:",
         "https://images.autodesk.com",
         "https://cdn.derivative.autodesk.com",
+        "https://tad-app-backend.vercel.app",
+        "https://tad-app-fronend.vercel.app",
       ],
       connectSrc: [
         "'self'",
