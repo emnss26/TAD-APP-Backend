@@ -10,16 +10,16 @@ function getCollName(accountId, projectId) {
 
 async function postDataModel(req, res) {
   const { projectId, accountId } = req.params;
-  const rows = Array.isArray(req.body) ? req.body : [];
+  const rows = Array.isArray(req.body) ? req.body : []; 
 
-  // 1) Filtrar y validar
+  
   const docs = rows
-    .filter(r => r.dbId && String(r.dbId).trim())
+    .filter(r => r && r.dbId && String(r.dbId).trim()) 
     .map((r, i) => {
       const doc = { ...r, dbId: String(r.dbId) };
-      Object.keys(doc).forEach(k => doc[k] == null && delete doc[k]);
+      Object.keys(doc).forEach(k => (doc[k] === null || doc[k] === undefined) && delete doc[k]); 
       if (!validateModelData(doc)) {
-        console.warn(`Fila ${i} inválida:`, validateModelData.errors);
+        console.warn(`Fila ${i} inválida en lote:`, validateModelData.errors);
         return null;
       }
       return doc;
@@ -27,53 +27,48 @@ async function postDataModel(req, res) {
     .filter(Boolean);
 
   if (!docs.length) {
+    
     return res.status(400).json({
       data: [],
-      error: "No hay filas válidas",
-      message: "Añade al menos un elemento con dbId válido"
+      error: "No hay filas válidas en el lote recibido.",
+      message: "El lote enviado no contenía elementos válidos con dbId."
     });
   }
 
-  // 2) Conectar y preparar modelo
-  const db       = await getDb();
-  const collName = getCollName(accountId, projectId);
-  const ModelDB  = db.model("ModelDatabase", modeldatabaseSchema, collName);
-
-  // 3) Preparar operaciones bulk
-  const ops = docs.map(doc => ({
-    updateOne: {
-      filter: { dbId: doc.dbId },
-      update: { $set: doc },
-      upsert: true
-    }
-  }));
-
   try {
-    // 4) Ejecutar batches en paralelo
-    const BATCH_SIZE = 200; // ajusta según necesites
-    const writePromises = [];
 
-    for (let i = 0; i < ops.length; i += BATCH_SIZE) {
-      const batchOps = ops.slice(i, i + BATCH_SIZE);
-      writePromises.push(
-        ModelDB.bulkWrite(batchOps, { ordered: false })
-      );
-    }
+    const db = await getDb(); 
+    const collName = getCollName(accountId, projectId);
+    const ModelDB = db.model("ModelDatabase", modeldatabaseSchema, collName);
 
-    // Esperamos a que todos los batches terminen
-    await Promise.all(writePromises);
-
+    const ops = docs.map(doc => ({
+      updateOne: {
+        filter: { dbId: doc.dbId },
+        update: { $set: doc }, 
+        upsert: true
+      }
+    }));
+    
+    const result = await ModelDB.bulkWrite(ops, { ordered: false });
+    
     return res.status(200).json({
-      data: docs,
+    
+      data: { 
+        processed: docs.length,
+        upserted: result.upsertedCount,
+        modified: result.modifiedCount
+      },
       error: null,
-      message: `Procesados ${docs.length} documentos en ${writePromises.length} lotes paralelos.`
+      message: `Procesados ${docs.length} documentos del lote.`
     });
+
   } catch (err) {
     console.error("Error en postDataModel:", err);
+
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "Error al guardar/actualizar los datos."
+      message: "Error interno del servidor al guardar/actualizar los datos del lote."
     });
   }
 }

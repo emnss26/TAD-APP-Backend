@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const modeldatabaseSchema = new mongoose.Schema(
   {
-    dbId: { type: String, index: true, required: true },
+    dbId: { type: String, required: true, unique: true, index: true },
     Code: String,
     Discipline: String,
     ElementType: String,
