@@ -37,7 +37,7 @@ const fronend_url =
         domain: process.env.DOMAIN || "http://localhost:5173",
       });
   
-      return res.redirect(`${fronend_url}/platform`);
+      return res.redirect(`${fronend_url}/platform=${token}`);
   
     } catch (error) {
       console.error("Error en ThreeLegged:", error);
