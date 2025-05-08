@@ -34,7 +34,7 @@ const fronend_url =
         secure: true,
         sameSite: "none",
         path: "/",
-        //domain: process.env.DOMAIN || "http://localhost:5173",
+        domain: process.env.DOMAIN || "http://localhost:5173",
       });
   
       return res.redirect(`${fronend_url}/platform?token=${token}`);
