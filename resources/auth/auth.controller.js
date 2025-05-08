@@ -6,55 +6,44 @@ const {
 } = require("../../libs/general/auth.libs");
 
 const fronend_url =
-  process.env.FRONTEND_URL || "http://localhost:5173/platform";
+  process.env.FRONTEND_URL || "http://localhost:5173";
 
-const GetThreeLegged = async (req, res) => {
-  const { code } = req.query;
-
-  try {
-    const token = await GetAPSThreeLeggedToken(code);
-
-    const { data: userData } = await axios.get(
-      "https://developer.api.autodesk.com/userprofile/v1/users/@me",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const GetThreeLegged = async (req, res) => {
+    const { code } = req.query;
+  
+    try {
+      const token = await GetAPSThreeLeggedToken(code);
+      const { data: userData } = await axios.get(
+        "https://developer.api.autodesk.com/userprofile/v1/users/@me",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const userEmail = userData.emailId;
+  
+      // Si el email NO está en la lista de aprobados, redirige:
+      if (
+        !approvedemails.approvedemails.some(u => u.email === userEmail)
+      ) {
+        // 302 redirect a la ruta de Not Allowed en tu front
+        return res.redirect(`${frontend_url}/not-authorized`);
       }
-    );
-
-    console.log("User data:", userData);
-
-    const userEmail = userData.emailId;
-    console.log("User email:", userEmail);
-
-    if (
-      !approvedemails.approvedemails.some((user) => user.email === userEmail)
-    ) {
-      return res.status(403).json({
-        message: "User is not authorized to access this app",
-        error: "Unauthorized",
+  
+      // Si todo ok, setea la cookie y avanza
+      res.cookie("access_token", token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        path: "/",
       });
+  
+      return res.redirect(`${fronend_url}/platform`);
+  
+    } catch (error) {
+      console.error("Error en ThreeLegged:", error);
+      // Opcional: redirige a un error genérico o a Not Allowed
+      return res.redirect(`${fronend_url}/not-authorized`);
     }
-
-    res.cookie("access_token", token, {
-      maxAge: 3600000,
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-      //domain: "tad-app-frontend.vercel.app"
-    });
-
-    console.log("token", token);
-    res.redirect(`${fronend_url}/platform`);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error fetching token",
-      error: error.message,
-    });
-  }
-};
+  };
 
 const GetToken = async (req, res) => {
   try {
