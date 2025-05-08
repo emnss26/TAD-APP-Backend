@@ -24,7 +24,7 @@ const fronend_url =
         !approvedemails.approvedemails.some(u => u.email === userEmail)
       ) {
         // 302 redirect a la ruta de Not Allowed en tu front
-        return res.redirect(`${frontend_url}/not-authorized`);
+        return res.redirect(`${fronend_url}/not-authorized`);
       }
   
       // Si todo ok, setea la cookie y avanza
