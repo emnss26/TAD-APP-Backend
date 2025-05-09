@@ -27,7 +27,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-    allowedHeaders: ['Content-Type','Authorization','Accept'],
+    allowedHeaders: ['Content-Type','Authorization','Accept', 'X-CSRF-Token'],
     exposedHeaders: ['Content-Type','Authorization','Accept'],
     credentials: true,
     optionsSuccessStatus: 204  
