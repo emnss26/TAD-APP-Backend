@@ -1,16 +1,6 @@
 const axios = require("axios");
 
-/**
- * Recorre recursivamente las carpetas y devuelve el primer item que cumpla
- *   filterFn(item) === true   ó   displayName incluye matchWord
- *
- * @param {Object} params
- * @param {string} params.token
- * @param {string} params.projectId
- * @param {string} params.folderId
- * @param {string} [params.matchWord]
- * @param {Function} [params.filterFn]
- */
+
 const GetFederatedModelFromFolders = async ({
   token,
   projectId,

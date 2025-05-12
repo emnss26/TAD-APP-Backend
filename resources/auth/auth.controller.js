@@ -19,29 +19,25 @@ const fronend_url =
       );
       const userEmail = userData.emailId;
   
-      // Si el email NO está en la lista de aprobados, redirige:
       if (
         !approvedemails.approvedemails.some(u => u.email === userEmail)
       ) {
-        // 302 redirect a la ruta de Not Allowed en tu front
         return res.redirect(`${fronend_url}/not-authorized`);
       }
   
-      // Si todo ok, setea la cookie y avanza
+   
       res.cookie("access_token", token, {
         maxAge: 3600000,
         httpOnly: true,
         secure: true,
         sameSite: "none",
         path: "/",
-        //domain: process.env.DOMAIN || "http://localhost:5173",
       });
   
-      return res.redirect(`${fronend_url}/platform?token=${token}`);
+      return res.redirect(`${fronend_url}/platform`);
   
     } catch (error) {
       console.error("Error en ThreeLegged:", error);
-      // Opcional: redirige a un error genérico o a Not Allowed
       return res.redirect(`${fronend_url}/not-authorized`);
     }
   };

@@ -13,7 +13,6 @@ const plansSchema = new mongoose.Schema(
     SheetNumber: { type: String },
     Discipline: { type: String },
     Revision: { type: String },
-    RevisionDate: { type: Date }
   },
   { timestamps: false }
 );
@@ -50,7 +49,7 @@ async function postDataModel(req, res) {
         SheetNumber: r.SheetNumber,
         Discipline: r.Discipline,
         Revision: r.Revision,
-        RevisionDate: r.RevisionDate,
+        
       };
       // Remove null or undefined
       Object.keys(rowDoc).forEach(key => rowDoc[key] == null && delete rowDoc[key]);
@@ -123,7 +122,7 @@ async function getDataModel(req, res) {
     }
     const items = await PlansModel.find(filter).lean();
 
-    console.log("Recuperados (plans):", items);
+    //console.log("Recuperados (plans):", items);
     return res.status(200).json({
       data: items,
       error: null,
@@ -192,8 +191,46 @@ async function patchDataModel(req, res) {
   }
 }
 
+async function deleteDataModel(req, res) {
+  const { accountId, projectId } = req.params;
+  const { ids } = req.body;           // array de SheetNumber (_key) a borrar
+
+  if (!Array.isArray(ids) || !ids.length) {
+    return res.status(400).json({
+      data: null,
+      error: "Faltan ids",
+      message: "Envía un array 'ids' con los SheetNumber a eliminar"
+    });
+  }
+
+  const db        = await getDb();
+  const PlansModel = db.model(
+    "PlansDatabase",
+    plansSchema,
+    getCollName(accountId, projectId)
+  );
+
+  try {
+    const result = await PlansModel.deleteMany({ _key: { $in: ids.map(String) } });
+    return res.status(200).json({
+      data: { deleted: result.deletedCount },
+      error: null,
+      message: `Eliminados ${result.deletedCount} documentos`
+    });
+  } catch (err) {
+    console.error("Error en deleteDataModel (plans):", err);
+    return res.status(500).json({
+      data: null,
+      error: err.message,
+      message: "Error al eliminar documentos"
+    });
+  }
+}
+
+
 module.exports = {
   postDataModel,
   getDataModel,
   patchDataModel,
+  deleteDataModel,
 };

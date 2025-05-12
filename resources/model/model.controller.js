@@ -1,5 +1,5 @@
 const modeldatabaseSchema = require("../../resources/schemas/model.schema");
-const getDb              = require("../../config/mongodb");
+const getDb  = require("../../config/mongodb");
 const { validateModelData } = require("../../config/database.schema");
 
 function getCollName(accountId, projectId) {

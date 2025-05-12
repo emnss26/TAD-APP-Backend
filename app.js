@@ -1,4 +1,3 @@
-// app.js
 const express = require("express");
 const rateLimit = require('express-rate-limit');
 const morgan = require("morgan");
@@ -6,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const dotenv = require("dotenv");
+const csurf = require("csurf");
 dotenv.config();
 
 require ('./config/mongodb.js');
@@ -13,11 +13,11 @@ require ('./config/mongodb.js');
 const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:5173",
-  "https://tad-app-fronend.vercel.app", "https://tad-app-fronend.vercel.app",
 ];
 
 const app = express();
 app.disable('etag');
+app.disable("x-powered-by");
 app.set('trust proxy', 1);
 
 app.use(express.json({ limit: "250mb" }));
@@ -27,7 +27,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-    allowedHeaders: ['Content-Type','Authorization','Accept'],
+    allowedHeaders: ['Content-Type','Authorization','Accept','X-CSRF-Token'],
     exposedHeaders: ['Content-Type','Authorization','Accept'],
     credentials: true,
     optionsSuccessStatus: 204  
@@ -84,7 +84,8 @@ const excludedPaths = [
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,     
-  max: 100,                     
+  max: 5,  
+  message: "Too many login attempts from this IP, please try again later.",                  
   standardHeaders: true,        
   legacyHeaders: false,
   skip: (req) => {
@@ -99,11 +100,27 @@ app.use(globalLimiter);
 
 app.use(cookieParser());
 
+app.use(
+  csurf({
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    },
+  })
+);
+
+app.get("/csrf-token", (req, res) => {
+  res.status(200).json({ csrfToken: req.csrfToken() });
+});
+
+const validateAutodeskToken = require("./libs/general/validatetoken.js");
+
 app.use("/auth", require("./resources/auth/auth.router.js"));
 app.use("/general", require("./resources/general/general.route.js"));
-app.use("/acc", require("./resources/acc/acc.router.js"));
-app.use("/bim360", require("./resources/bim360/bim360.router.js"));
-app.use("/datamanagement", require("./resources/datamanagement/datamanagement.router.js"));
+app.use("/acc", validateAutodeskToken, require("./resources/acc/acc.router.js"));
+app.use("/bim360", validateAutodeskToken, require("./resources/bim360/bim360.router.js"));
+app.use("/datamanagement", validateAutodeskToken, require("./resources/datamanagement/datamanagement.router.js"));
 app.use('/modeldata', require ("./resources/model/model.router.js"));
 app.use('/plans', require ("./resources/plans/plans.router.js"));
 app.use('/task', require ("./resources/task/task.router.js"));
@@ -124,6 +141,13 @@ if (require.main === module) {
     console.log(`🚀 Server running on port ${PORT}`);
   });
 }
+
+app.use((err, req, res, next) => {
+  if (err.code === "EBADCSRFTOKEN") {
+    return res.status(403).json({ message: "Invalid CSRF token" });
+  }
+  next(err);
+});
 
 
 module.exports = app;
