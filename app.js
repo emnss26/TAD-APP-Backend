@@ -6,9 +6,9 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const dotenv = require("dotenv");
 const csurf = require("csurf");
-dotenv.config();
 
-require ('./config/mongodb.js');
+dotenv.config();
+require('./config/mongodb.js');
 
 const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
@@ -22,9 +22,11 @@ app.disable('etag');
 app.disable("x-powered-by");
 app.set('trust proxy', 1);
 
+// Body parsers
 app.use(express.json({ limit: "250mb" }));
 app.use(express.urlencoded({ limit: "250mb", extended: true }));
 
+// CORS
 app.use(
   cors({
     origin: allowedOrigins,
@@ -35,11 +37,12 @@ app.use(
     optionsSuccessStatus: 204  
   })
 );
-
 app.options(/.*/, cors());
 
+// Logging
 app.use(morgan("dev"));
 
+// Security headers
 app.use(helmet());
 app.use(
   helmet.contentSecurityPolicy({
@@ -51,6 +54,10 @@ app.use(
         "https://cdn.derivative.autodesk.com",
         "https://tad-app-backend.vercel.app",
         "https://tad-app-fronend.vercel.app",
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'"
       ],
       imgSrc: [
         "'self'",
@@ -66,42 +73,50 @@ app.use(
         "https://cdn.derivative.autodesk.com",
         "https://tad-app-backend.vercel.app",
         "https://tad-app-fronend.vercel.app",
-
       ],
     },
   })
 );
 
-const excludedPaths = [
-  "/favicon.ico",
-  "/auth",
-  "/general",
-  "/acc",
-  "/bim360",
-  "/datamanagement",
-  "/modeldata",
-  "/plans",
-  "/task",
-];
-
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,     
-  max: 5,  
-  message: "Too many login attempts from this IP, please try again later.",                  
-  standardHeaders: true,        
+// Rate limiters
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,   
+  max: 20,                    
+  standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => {
-    return excludedPaths.some(prefix => req.path.startsWith(prefix));
-  },    
-  message: {
-    status: 429,
-    error: 'Too many requests, please try again later.'
-  }
+  message: { status: 429, error: 'Too many authentication requests, slow down.' }
 });
-app.use(globalLimiter);
+const writeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,    
+  max: 30,                    
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { status: 429, error: 'Too many write operations, please wait.' }
+});
+const readLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,    
+  max: 300,                   
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { status: 429, error: 'Too many requests, please wait.' }
+});
 
+// Autenticación (login/logout/token)
+app.use('/auth', authLimiter, require("./resources/auth/auth.router.js"));
+
+// Aplicar límites según método HTTP
+app.use((req, res, next) => {
+  if (['POST','PUT','PATCH','DELETE'].includes(req.method)) {
+    return writeLimiter(req, res, next);
+  }
+  if (req.method === 'GET') {
+    return readLimiter(req, res, next);
+  }
+  next();
+});
+
+// Cookies y CSRF
 app.use(cookieParser());
-
 app.use(
   csurf({
     cookie: {
@@ -112,38 +127,41 @@ app.use(
   })
 );
 
+// Endpoint para obtener el token CSRF
 app.get("/csrf-token", (req, res) => {
   res.status(200).json({ csrfToken: req.csrfToken() });
 });
 
+// Validación de token Autodesk
 const validateAutodeskToken = require("./libs/general/validatetoken.js");
 
-app.use("/auth", require("./resources/auth/auth.router.js"));
+// Rutas
 app.use("/general", require("./resources/general/general.route.js"));
 app.use("/acc", validateAutodeskToken, require("./resources/acc/acc.router.js"));
 app.use("/bim360", validateAutodeskToken, require("./resources/bim360/bim360.router.js"));
 app.use("/datamanagement", validateAutodeskToken, require("./resources/datamanagement/datamanagement.router.js"));
-app.use('/modeldata', require ("./resources/model/model.router.js"));
-app.use('/plans', require ("./resources/plans/plans.router.js"));
-app.use('/task', require ("./resources/task/task.router.js"));
-app.use('/ai-users', require ("./openai/general/users.google.ai.js"));
-app.use('/ai-issues', require ("./openai/general/issues.google.ai.js"));
-app.use('/ai-submittlas', require ("./openai/general/submittals.google.ai.js"));
-app.use('/ai-rfis', require ("./openai/general/rfis.google.ai.js"));
-app.use('/ai-modeldata', require ("./openai/general/model.google.ai.js"));
+app.use('/modeldata', require("./resources/model/model.router.js"));
+app.use('/plans', require("./resources/plans/plans.router.js"));
+app.use('/task', require("./resources/task/task.router.js"));
+app.use('/ai-users', require("./openai/general/users.google.ai.js"));
+app.use('/ai-issues', require("./openai/general/issues.google.ai.js"));
+app.use('/ai-submittlas', require("./openai/general/submittals.google.ai.js"));
+app.use('/ai-rfis', require("./openai/general/rfis.google.ai.js"));
+app.use('/ai-modeldata', require("./openai/general/model.google.ai.js"));
 
+// Health check
 app.get("/", (req, res) => {
   res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });
 });
 
-
+// Iniciar servidor (si se ejecuta directamente)
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
 }
 
+// Manejo de token CSRF inválido
 app.use((err, req, res, next) => {
   if (err.code === "EBADCSRFTOKEN") {
     return res.status(403).json({ message: "Invalid CSRF token" });
@@ -151,5 +169,17 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// Manejo global de errores
+app.use((err, req, res, next) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.error(err.stack);
+    return res.status(err.status || 500).json({
+      message: err.message,
+      stack: err.stack
+    });
+  }
+  console.error(err.message);
+  res.status(err.status || 500).json({ message: 'Internal server error' });
+});
 
 module.exports = app;
