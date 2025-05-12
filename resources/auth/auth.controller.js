@@ -30,7 +30,7 @@ const fronend_url =
         maxAge: 3600000,
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+        sameSite: "None",
         path: "/",
       });
   
@@ -66,7 +66,7 @@ const PostLogout = async (req, res) => {
     res.clearCookie("access_token", {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+      sameSite: "None",
       path: "/",
     });
     res.status(200).json({ message: "Logged out" });
@@ -77,7 +77,6 @@ const PostLogout = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   GetThreeLegged,
