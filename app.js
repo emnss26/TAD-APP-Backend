@@ -101,6 +101,30 @@ const readLimiter = rateLimit({
   message: { status: 429, error: 'Too many requests, please wait.' }
 });
 
+// Cookies y CSRF
+app.use(cookieParser());
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith('/ai-') ||
+    req.path.startsWith('/datamanagement') ||
+    req.path.startsWith('/plans')
+  ) {
+    return next();
+  }
+  return csurf({
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    },
+  })(req, res, next);
+});
+
+// Endpoint para obtener el token CSRF
+app.get("/csrf-token", (req, res) => {
+  res.status(200).json({ csrfToken: req.csrfToken() });
+});
+
 // Autenticación (login/logout/token)
 app.use('/auth', authLimiter, require("./resources/auth/auth.router.js"));
 
@@ -113,23 +137,6 @@ app.use((req, res, next) => {
     return readLimiter(req, res, next);
   }
   next();
-});
-
-// Cookies y CSRF
-app.use(cookieParser());
-app.use(
-  csurf({
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Lax',
-    },
-  })
-);
-
-// Endpoint para obtener el token CSRF
-app.get("/csrf-token", (req, res) => {
-  res.status(200).json({ csrfToken: req.csrfToken() });
 });
 
 // Validación de token Autodesk

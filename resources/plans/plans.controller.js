@@ -13,6 +13,10 @@ const plansSchema = new mongoose.Schema(
     SheetNumber: { type: String },
     Discipline: { type: String },
     Revision: { type: String },
+    LastModifiedDate: { type: String },
+    InFolder: Boolean,
+    InARevisionProcess: { type: String },
+    RevisionStatus: { type: String },
   },
   { timestamps: false }
 );
@@ -49,6 +53,10 @@ async function postDataModel(req, res) {
         SheetNumber: r.SheetNumber,
         Discipline: r.Discipline,
         Revision: r.Revision,
+        LastModifiedDate: r.LastModifiedDate,
+        InFolder:         Boolean(r.InFolder),
+        InARevisionProcess: r.InARevisionProcess,
+        RevisionStatus: r.RevisionStatus,
         
       };
       // Remove null or undefined

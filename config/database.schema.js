@@ -208,7 +208,10 @@ const plansDataSchema = {
     SheetNumber: { $ref: "#/definitions/nullableString" },
     Discipline: { $ref: "#/definitions/nullableString" },
     Revision: { $ref: "#/definitions/nullableString" },
-    RevisionDate: { $ref: "#/definitions/nullableString" },
+    LastModifiedDate: { $ref: "#/definitions/nullableString" },
+    InFolder: { type: "boolean" },
+    InARevisionProcess: { $ref: "#/definitions/nullableString" },
+    RevisionStatus: { $ref: "#/definitions/nullableString" },
 
   },
   required: ["Id"],
