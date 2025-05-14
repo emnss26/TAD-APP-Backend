@@ -81,7 +81,7 @@ app.use(
 // Rate limiters
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,   
-  max: 20,                    
+  max: 30,                    
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: 'Too many authentication requests, slow down.' }
@@ -107,7 +107,9 @@ app.use((req, res, next) => {
   if (
     req.path.startsWith('/ai-') ||
     req.path.startsWith('/datamanagement') ||
-    req.path.startsWith('/plans')
+    req.path.startsWith('/plans') ||
+    req.path.startsWith('/task') ||
+    req.path.startsWith('/modeldata') 
   ) {
     return next();
   }
