@@ -19,7 +19,7 @@ const GetFederatedModelFromFolders = async ({
   const items = folderContent.data.filter((i) => i.type === "items");
   const folders = folderContent.data.filter((i) => i.type === "folders");
 
-  /* 1) Revisa los files (.items) de la carpeta actual */
+  /* 1 ) Revisa los files (.items) de la carpeta actual */
   for (const item of items) {
     const name = (item.attributes?.displayName || "").toLowerCase();
 
