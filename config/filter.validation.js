@@ -3,7 +3,7 @@ function filterValid(docs, validateFn, label) {
       if (validateFn(doc)) {
         acc.push(doc);
       } else {
-        console.warn(`${label} inválido en ${i}:`, validateFn.errors);
+        console.warn(`${label} invalid at ${i}:`, validateFn.errors);
       }
       return acc;
     }, []);

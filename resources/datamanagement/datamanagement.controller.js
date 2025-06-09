@@ -59,12 +59,12 @@ const GetFederatedModel = async (req, res) => {
     });
 
     if (!foundFile) {
-      return res.status(404).json({
-        data: null,
-        error: "File not found",
-        message:
-          "No se encontró un archivo .rvt que contenga FED / FEDERADO en su nombre",
-      });
+        return res.status(404).json({
+          data: null,
+          error: "File not found",
+          message:
+            "No .rvt file containing FED / FEDERADO in its name was found",
+        });
     }
 
     //console.log("Found file:", foundFile);
@@ -77,8 +77,8 @@ const GetFederatedModel = async (req, res) => {
     if (!versions.data?.length) {
       return res.status(404).json({
         data: null,
-        error: "No versions found",
-        message: "No hay versiones para el archivo encontrado",
+          error: "No versions found",
+          message: "No versions were found for the located file",
       });
     }
 
@@ -94,11 +94,11 @@ const GetFederatedModel = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching federated model:", error.message || error);
-    res.status(500).json({
-      data: null,
-      error: null,
-      message: "Error al entrar al modelo federado",
-    });
+      res.status(500).json({
+        data: null,
+        error: null,
+        message: "Error accessing the federated model",
+      });
   }
 };
 

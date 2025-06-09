@@ -22,7 +22,7 @@ const GetProjectRevision = async (req, res) => {
       message: "Project reviews fetched successfully",
     });
   } catch (error) {
-    console.error("Error en GetProjectRevision:", error);
+    console.error("Error in GetProjectRevision:", error);
     return res.status(500).json({
       data: null,
       error: error.message,

@@ -47,7 +47,7 @@ const GetFileData = async (req, res) =>{
       message: "File versions fetched successfully",
     });
   } catch (error) {
-    console.error("Error en GetFileVersions:", error);
+    console.error("Error in GetFileVersions:", error);
     return res.status(500).json({
       data: null,
       error: error.message,

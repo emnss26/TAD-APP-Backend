@@ -23,7 +23,7 @@ router.post("/submittals", async (req, res) => {
     const Submittals = db.model("Submittals", submittalsSchema, coll);
     const subs = await Submittals.find({}).lean().exec();
 
-    // Cálculo de resumen por estado
+    // Summary calculation by state
     const total = subs.length;
     const byState = subs.reduce((acc, s) => {
       const st = s.state || "Unknown";
@@ -34,7 +34,7 @@ router.post("/submittals", async (req, res) => {
       .concat(Object.entries(byState).map(([st, c]) => `${st}: ${c}`))
       .join(" | ");
 
-    // Datos detallados
+    // Detailed data
     const details = subs.map(s => (
       `ID: ${s.identifier || "N/A"}
 Title: ${s.title || "N/A"}

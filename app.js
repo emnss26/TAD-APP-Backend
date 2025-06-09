@@ -101,7 +101,7 @@ const readLimiter = rateLimit({
   message: { status: 429, error: 'Too many requests, please wait.' }
 });
 
-// Cookies y CSRF
+// Cookies and CSRF
 app.use(cookieParser());
 app.use((req, res, next) => {
   if (
@@ -122,15 +122,15 @@ app.use((req, res, next) => {
   })(req, res, next);
 });
 
-// Endpoint para obtener el token CSRF
+// Endpoint to obtain the CSRF token
 app.get("/csrf-token", (req, res) => {
   res.status(200).json({ csrfToken: req.csrfToken() });
 });
 
-// Autenticación (login/logout/token)
+// Authentication (login/logout/token)
 app.use('/auth', authLimiter, require("./resources/auth/auth.router.js"));
 
-// Aplicar límites según método HTTP
+// Apply limits depending on HTTP method
 app.use((req, res, next) => {
   if (['POST','PUT','PATCH','DELETE'].includes(req.method)) {
     return writeLimiter(req, res, next);
@@ -141,7 +141,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Validación de token Autodesk
+// Autodesk token validation
 const validateAutodeskToken = require("./libs/general/validatetoken.js");
 
 // Rutas
@@ -160,7 +160,7 @@ app.use('/ai-modeldata', require("./openai/general/model.google.ai.js"));
 
 // Health check
 app.get("/", (req, res) => {
-  res.json({ message: "TAD‑APP‑Backend API está viva 🚀" });
+  res.json({ message: "TAD‑APP‑Backend API is alive 🚀" });
 });
 
 // Iniciar servidor (si se ejecuta directamente)
@@ -170,7 +170,7 @@ if (require.main === module) {
   });
 }
 
-// Manejo de token CSRF inválido
+// Handle invalid CSRF token
 app.use((err, req, res, next) => {
   if (err.code === "EBADCSRFTOKEN") {
     return res.status(403).json({ message: "Invalid CSRF token" });
@@ -178,7 +178,7 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Manejo global de errores
+// Global error handling
 app.use((err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     console.error(err.stack);
