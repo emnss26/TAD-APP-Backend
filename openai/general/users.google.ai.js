@@ -119,7 +119,7 @@ router.post("/users", async (req, res) => {
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-      generationConfig, // Pasar la configuración aquí
+      generationConfig, // Pass the configuration here
   }   );
     const response = await result.response;
     const reply = response.text();

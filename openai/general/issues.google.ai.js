@@ -131,7 +131,7 @@ If asked for a count already provided in the summary, use that value directly. U
 Please respond clearly in English and concisely to the following question: ${message}
 `;
 
-    // console.log("Prompt being sent to AI:", fullPrompt); // Descomenta para depurar el prompt completo
+    // console.log("Prompt being sent to AI:", fullPrompt); // Uncomment to debug the full prompt
 
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash-latest",
@@ -144,7 +144,7 @@ Please respond clearly in English and concisely to the following question: ${mes
     });
     const response = await result.response;
 
-    // Manejo de posible falta de texto en la respuesta (puede pasar si es bloqueado o hay error)
+    // Handle potential missing text in the response (may happen if it was blocked or an error occurred)
     if (
       !response ||
       !response.candidates ||

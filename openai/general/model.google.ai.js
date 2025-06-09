@@ -23,7 +23,7 @@ router.post("/model-da", async (req, res) => {
     const Models = db.model("Models", modelSchema, coll);
     const models = await Models.find({}).lean().exec();
 
-    // Cálculo de resumen por disciplina
+    // Summary calculation by discipline
     const total = models.length;
     const byDiscipline = models.reduce((acc, m) => {
       const d = m.Discipline || "Unknown";
@@ -34,7 +34,7 @@ router.post("/model-da", async (req, res) => {
       .concat(Object.entries(byDiscipline).map(([d, c]) => `${d}: ${c}`))
       .join(" | ");
 
-    // Datos detallados
+    // Detailed data
     const details = models.map(m => (
       `Model ID: ${m.dbId || "N/A"}
 Type Name: ${m.TypeName || "N/A"}
