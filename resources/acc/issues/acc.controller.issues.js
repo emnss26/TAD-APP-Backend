@@ -118,7 +118,7 @@ const GetIssues = async (req, res) => {
       dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
       updatedAt: issue.updatedAt ? new Date(issue.updatedAt) : null,
       updatedBy: issue.updatedBy,
-      closedAt: issue.closedAt ? new Date(issue.updatedAt) : null,
+      closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
     }));
 
     //console.log ("projectId:", projectId);
