@@ -88,7 +88,7 @@ async function batchUpsert(collectionName, docs = []) {
     throw new Error("batchUpsert: docs debe ser un array");
   }
   if (docs.length === 0) {
-    console.log("batchUpsert: array vacío, nada que hacer");
+    console.debug("batchUpsert: array vacío, nada que hacer");
     return;
   }
   for (const doc of docs) {

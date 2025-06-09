@@ -44,7 +44,7 @@ async function getDocs(collectionName, query = '') {
   const base = `/${SCHEMA}/soda/latest/${collectionName}`;
   const url  = query ? `${base}?${query}` : base;
 
-  console.log(`GET request to: ${url}`);
+  console.debug(`GET request to: ${url}`);
   try {
     const res = await client.get(url);
     return res.data.items;

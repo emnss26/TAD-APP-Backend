@@ -64,7 +64,7 @@ const GetProjectUsers = async (req, res) => {
     const safeProj = sanitize(projectId);
     const collName = `${safeAcc}_${safeProj}_users`;
 
-    console.log("Attempting to query collection:", collName);
+    console.debug("Attempting to query collection:", collName);
 
     const Users = db.model("Users", projectUsersSchema, collName);
 

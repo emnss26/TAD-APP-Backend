@@ -28,7 +28,7 @@ const GetFoldersStructure = async (req, res) => {
 
     const foldersArray = topFolders.data.data;
 
-    console.log("Top folders:", foldersArray);
+    console.debug("Top folders:", foldersArray);
 
     const projectFolder = foldersArray.find(
       (f) =>

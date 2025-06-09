@@ -22,7 +22,7 @@ router.post("/issues", async (req, res) => {
   }
 
   try {
-    console.log(
+    console.debug(
       "Received request to Google AI Issues with message:",
       message,
       "Account ID:",
@@ -34,31 +34,31 @@ router.post("/issues", async (req, res) => {
 
     if (projectId.startsWith("b.")) {
       projectId = projectId.substring(2);
-      console.log("Project ID (modified):", projectId);
+      console.debug("Project ID (modified):", projectId);
     }
 
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
 
     const collectionName = `${safeAcc}_${safeProj}_issues`;
-    console.log("Attempting to query collection:", collectionName);
+    console.debug("Attempting to query collection:", collectionName);
 
     const Issues = db.model("Issues", issuesSchema, collectionName);
 
     const issues = await Issues.find({}).lean().exec();
-    console.log("Issues found:", issues.length);
+    console.debug("Issues found:", issues.length);
 
     const totalIssues = issues.length;
     const openIssues = issues.filter((issue) => issue.status === "open").length;
-    console.log("Open Issues:", openIssues);
+    console.debug("Open Issues:", openIssues);
     const closedIssues = issues.filter(
       (issue) => issue.status === "closed"
     ).length;
-    console.log("Closed Issues:", closedIssues);
+    console.debug("Closed Issues:", closedIssues);
     const inreviewIssues = issues.filter(
       (issue) => issue.status === "in_review" || issue.status === "in review"
     ).length;
-    console.log("In Review Issues:", inreviewIssues);
+    console.debug("In Review Issues:", inreviewIssues);
 
     if (totalIssues === 0) {
       return res.json({ reply: "I found no issues data for this project." });
