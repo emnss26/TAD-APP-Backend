@@ -30,7 +30,7 @@ const rfiSchema = new mongoose.Schema(
   }
 );
 
-// índice único sobre proyecto + identificador
+// unique index on project + identifier
 rfiSchema.index({ projectId: 1, customIdentifier: 1 }, { unique: true });
 
 module.exports = rfiSchema;

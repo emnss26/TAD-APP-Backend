@@ -1,14 +1,14 @@
 const axios = require("axios");
 
 /**
- * Obtiene permisos de múltiples carpetas con concurrencia limitada.
- * @param {string} token - Token de acceso.
- * @param {string} projectId - ID del proyecto.
- * @param {Array<{id:string,name:string}>} folders - Lista de carpetas.
+ * Retrieves permissions for multiple folders with limited concurrency.
+ * @param {string} token - Access token.
+ * @param {string} projectId - Project ID.
+ * @param {Array<{id:string,name:string}>} folders - List of folders.
  * @returns {Promise<Array<{folderId:string,folderName:string,permissions:Array<Object>}>>}
  */
 async function GetFolderPermissions(token, projectId, folders) {
-  // Import dinámico para soportar ESM
+  // Dynamic import to support ESM
   const { default: pLimit } = await import("p-limit");
   const limit = pLimit(5);
 

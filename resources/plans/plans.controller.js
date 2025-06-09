@@ -35,13 +35,13 @@ async function postDataModel(req, res) {
   const rows = Array.isArray(req.body) ? req.body : [];
 
   // Filter only rows with a valid SheetNumber
-  const candidates = rows.filter(r => r.SheetNumber && String(r.SheetNumber).trim());
-  if (!candidates.length) {
-    return res.status(400).json({
-      data: [],
-      error: "No hay filas con SheetNumber válido",
-      message: "Añade al menos un elemento con SheetNumber",
-    });
+    const candidates = rows.filter(r => r.SheetNumber && String(r.SheetNumber).trim());
+    if (!candidates.length) {
+      return res.status(400).json({
+        data: [],
+        error: "No rows with a valid SheetNumber",
+        message: "Add at least one item with a SheetNumber",
+      });
   }
 
   // Validate fields against schema
@@ -63,7 +63,7 @@ async function postDataModel(req, res) {
       Object.keys(rowDoc).forEach(key => rowDoc[key] == null && delete rowDoc[key]);
 
       if (!validatePlansData(rowDoc)) {
-        console.warn(`Fila ${i} inválida (SheetNumber: ${r.SheetNumber}):`, validatePlansData.errors);
+        console.warn(`Row ${i} invalid (SheetNumber: ${r.SheetNumber}):`, validatePlansData.errors);
         return null;
       }
       return rowDoc;
@@ -71,11 +71,11 @@ async function postDataModel(req, res) {
     .filter(Boolean);
 
   if (!validatedRows.length) {
-    return res.status(400).json({
-      data: [],
-      error: "Ninguna fila pasó la validación",
-      message: "Revisa el formato de tus datos o los errores en la consola del backend.",
-    });
+      return res.status(400).json({
+        data: [],
+        error: "No rows passed validation",
+        message: "Check your data format or the backend validation errors.",
+      });
   }
 
   // Map to documents with composite keys
@@ -103,14 +103,14 @@ async function postDataModel(req, res) {
     return res.status(200).json({
       data: docs,
       error: null,
-      message: `Procesados ${docs.length} documentos correctamente.`,
+        message: `Processed ${docs.length} documents successfully.`,
     });
   } catch (err) {
     console.error("Error en postDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message || String(err),
-      message: "Error al guardar/actualizar los datos.",
+        message: "Error saving/updating the data.",
     });
   }
 }
@@ -134,14 +134,14 @@ async function getDataModel(req, res) {
     return res.status(200).json({
       data: items,
       error: null,
-      message: "Datos recuperados correctamente",
+        message: "Data retrieved successfully",
     });
   } catch (err) {
-    console.error("Error en getDataModel (plans):", err);
+      console.error("Error in getDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "No se pudieron recuperar los datos",
+        message: "Could not retrieve the data",
     });
   }
 }
@@ -153,8 +153,8 @@ async function patchDataModel(req, res) {
   if (!field || value === undefined) {
     return res.status(400).json({
       data: null,
-      error: "Faltan 'field' o 'value'",
-      message: "Proporciona field y value para actualizar",
+        error: "Missing 'field' or 'value'",
+        message: "Provide field and value to update",
     });
   }
 
@@ -165,8 +165,8 @@ async function patchDataModel(req, res) {
   if (!PlansModel.schema.path(field)) {
     return res.status(400).json({
       data: null,
-      error: `El campo '${field}' no existe en el esquema`,
-      message: "Campo inválido",
+        error: `Field '${field}' does not exist in the schema`,
+        message: "Invalid field",
     });
   }
 
@@ -180,34 +180,34 @@ async function patchDataModel(req, res) {
       return res.status(404).json({
         data: null,
         error: null,
-        message: `No se encontró elemento con Id ${Id} o no cambió valor`,
+          message: `No item with Id ${Id} found or value unchanged`,
       });
     }
 
     return res.status(200).json({
       data: null,
       error: null,
-      message: `Campo '${field}' actualizado correctamente`,
+        message: `Field '${field}' updated successfully`,
     });
   } catch (err) {
-    console.error("Error en patchDataModel (plans):", err);
+      console.error("Error in patchDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "Error al actualizar el documento",
+        message: "Error updating the document",
     });
   }
 }
 
 async function deleteDataModel(req, res) {
   const { accountId, projectId } = req.params;
-  const { ids } = req.body;           // array de SheetNumber (_key) a borrar
+  const { ids } = req.body;           // array of SheetNumber (_key) to delete
 
   if (!Array.isArray(ids) || !ids.length) {
-    return res.status(400).json({
-      data: null,
-      error: "Faltan ids",
-      message: "Envía un array 'ids' con los SheetNumber a eliminar"
+      return res.status(400).json({
+        data: null,
+        error: "Missing ids",
+        message: "Send an 'ids' array with the SheetNumbers to delete"
     });
   }
 
@@ -223,14 +223,14 @@ async function deleteDataModel(req, res) {
     return res.status(200).json({
       data: { deleted: result.deletedCount },
       error: null,
-      message: `Eliminados ${result.deletedCount} documentos`
+        message: `Deleted ${result.deletedCount} documents`
     });
   } catch (err) {
-    console.error("Error en deleteDataModel (plans):", err);
+      console.error("Error in deleteDataModel (plans):", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "Error al eliminar documentos"
+        message: "Error deleting documents"
     });
   }
 }
