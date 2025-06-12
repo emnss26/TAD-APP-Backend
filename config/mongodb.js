@@ -20,7 +20,7 @@ if (!connPromise) {
 }
 
 connPromise
-  .then(() => console.log('✅ MongoDB API connected'))
+  .then(() => console.debug('✅ MongoDB API connected'))
   .catch((err) => {
     console.error('❌ Error connecting MongoDB API:', err.message);
     process.exit(1);
@@ -32,7 +32,7 @@ mongoose.connection.on('disconnected', () =>
 );
 
 mongoose.connection.on('reconnected', () =>
-  console.log('🔄 MongoDB reconnected')
+  console.debug('🔄 MongoDB reconnected')
 );
 
 /**

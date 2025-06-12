@@ -23,7 +23,7 @@ router.post("/rfis", async (req, res) => {
     const Rfis = db.model("Rfis", rfiSchema, coll);
     const rfis = await Rfis.find({}).lean().exec();
 
-    // Cálculo de resumen
+    // Summary calculation
     const total = rfis.length;
     const open = rfis.filter(r => r.status === "open").length;
     const closed = rfis.filter(r => r.status === "closed").length;
@@ -35,7 +35,7 @@ router.post("/rfis", async (req, res) => {
       `Answered: ${answered}`
     ].join(" | ");
 
-    // Datos detallados
+    // Detailed data
     const details = rfis.map(rfi => (
       `RFI ID: ${rfi.customIdentifier || "N/A"}
 Title: ${rfi.title || "N/A"}

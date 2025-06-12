@@ -10,8 +10,8 @@ const  GetFolderContent = async (token, projectId, folderId) => {
 
     
     if (cache[cacheKey]) {
-        console.log(`Cache hit for folder: ${folderId}`);
-        return cache[cacheKey]; 
+        console.debug(`Cache hit for folder: ${folderId}`);
+        return cache[cacheKey];
     }
 
     try {

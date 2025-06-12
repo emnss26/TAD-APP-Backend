@@ -14,18 +14,18 @@ const GetFileRevisionStatus = async (req, res) => {
     });
   }
   if (!Array.isArray(itemIds) || itemIds.length === 0) {
-    return res.status(400).json({
-      data: null,
-      error: "Invalid input",
-      message: "Envía un array 'itemIds' con IDs de items",
-    });
+      return res.status(400).json({
+        data: null,
+        error: "Invalid input",
+        message: "Send an 'itemIds' array with item IDs",
+      });
   }
 
   try {
     const projectReviews = await GetProjectReviews(token, projectId);
 
-    if (!Array.isArray(projectReviews)) {
-      throw new Error("Formato inesperado de projectReviews");
+      if (!Array.isArray(projectReviews)) {
+        throw new Error("Unexpected projectReviews format");
     }
 
     const reviewMap = new Map(projectReviews.map(r => [r.id, r]));

@@ -28,7 +28,7 @@ const GetFoldersStructure = async (req, res) => {
 
     const foldersArray = topFolders.data.data;
 
-    console.log("Top folders:", foldersArray);
+    console.debug("Top folders:", foldersArray);
 
     const projectFolder = foldersArray.find(
       (f) =>
@@ -61,11 +61,11 @@ const GetFoldersStructure = async (req, res) => {
 
 
   } catch (error) {
-    console.error("Error en GetFoldersStructure:", error);
+    console.error("Error in GetFoldersStructure:", error);
     return res.status(500).json({
       data: null,
       error: error.message,
-      message: "Error al obtener la estructura de carpetas",
+        message: "Error fetching folder structure",
     });
   }
 };

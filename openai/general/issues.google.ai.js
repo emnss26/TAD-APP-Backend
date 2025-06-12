@@ -22,7 +22,7 @@ router.post("/issues", async (req, res) => {
   }
 
   try {
-    console.log(
+    console.debug(
       "Received request to Google AI Issues with message:",
       message,
       "Account ID:",
@@ -34,31 +34,31 @@ router.post("/issues", async (req, res) => {
 
     if (projectId.startsWith("b.")) {
       projectId = projectId.substring(2);
-      console.log("Project ID (modified):", projectId);
+      console.debug("Project ID (modified):", projectId);
     }
 
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
 
     const collectionName = `${safeAcc}_${safeProj}_issues`;
-    console.log("Attempting to query collection:", collectionName);
+    console.debug("Attempting to query collection:", collectionName);
 
     const Issues = db.model("Issues", issuesSchema, collectionName);
 
     const issues = await Issues.find({}).lean().exec();
-    console.log("Issues found:", issues.length);
+    console.debug("Issues found:", issues.length);
 
     const totalIssues = issues.length;
     const openIssues = issues.filter((issue) => issue.status === "open").length;
-    console.log("Open Issues:", openIssues);
+    console.debug("Open Issues:", openIssues);
     const closedIssues = issues.filter(
       (issue) => issue.status === "closed"
     ).length;
-    console.log("Closed Issues:", closedIssues);
+    console.debug("Closed Issues:", closedIssues);
     const inreviewIssues = issues.filter(
       (issue) => issue.status === "in_review" || issue.status === "in review"
     ).length;
-    console.log("In Review Issues:", inreviewIssues);
+    console.debug("In Review Issues:", inreviewIssues);
 
     if (totalIssues === 0) {
       return res.json({ reply: "I found no issues data for this project." });
@@ -131,7 +131,7 @@ If asked for a count already provided in the summary, use that value directly. U
 Please respond clearly in English and concisely to the following question: ${message}
 `;
 
-    // console.log("Prompt being sent to AI:", fullPrompt); // Descomenta para depurar el prompt completo
+    // console.log("Prompt being sent to AI:", fullPrompt); // Uncomment to debug the full prompt
 
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash-latest",
@@ -144,7 +144,7 @@ Please respond clearly in English and concisely to the following question: ${mes
     });
     const response = await result.response;
 
-    // Manejo de posible falta de texto en la respuesta (puede pasar si es bloqueado o hay error)
+    // Handle potential missing text in the response (may happen if it was blocked or an error occurred)
     if (
       !response ||
       !response.candidates ||

@@ -20,7 +20,7 @@ router.post("/users", async (req, res) => {
   }
 
   try {
-    console.log(
+    console.debug(
       "Received request to Google AI with message:",
       message,
       "Account ID:",
@@ -32,20 +32,20 @@ router.post("/users", async (req, res) => {
 
     if (projectId.startsWith("b.")) {
       projectId = projectId.substring(2);
-      console.log("Project ID (modified):", projectId);
+      console.debug("Project ID (modified):", projectId);
     }
 
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
 
     const collectionName = `${safeAcc}_${safeProj}_users`;
-    console.log("Attempting to query collection:", collectionName);
+    console.debug("Attempting to query collection:", collectionName);
     const Users = db.model("Users", projectUsersSchema, collectionName);
 
     const users = await Users.find({}).lean().exec();
 
-    console.log("Users found:", users.length);
-    console.log("Users data:", users);
+    console.debug("Users found:", users.length);
+    console.debug("Users data:", users);
 
     const totalUsers = users.length;
     const activeUsers = users.filter((user) => user.status === "active").length;
@@ -119,7 +119,7 @@ router.post("/users", async (req, res) => {
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
-      generationConfig, // Pasar la configuración aquí
+      generationConfig, // Pass the configuration here
   }   );
     const response = await result.response;
     const reply = response.text();

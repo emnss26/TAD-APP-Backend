@@ -19,7 +19,7 @@ async function postDataModel(req, res) {
       const doc = { ...r, dbId: String(r.dbId) };
       Object.keys(doc).forEach(k => (doc[k] === null || doc[k] === undefined) && delete doc[k]); 
       if (!validateModelData(doc)) {
-        console.warn(`Fila ${i} inválida en lote:`, validateModelData.errors);
+        console.warn(`Row ${i} invalid in batch:`, validateModelData.errors);
         return null;
       }
       return doc;
@@ -30,8 +30,8 @@ async function postDataModel(req, res) {
     
     return res.status(400).json({
       data: [],
-      error: "No hay filas válidas en el lote recibido.",
-      message: "El lote enviado no contenía elementos válidos con dbId."
+      error: "No valid rows in the received batch.",
+      message: "The batch sent did not contain valid elements with dbId."
     });
   }
 
@@ -59,16 +59,16 @@ async function postDataModel(req, res) {
         modified: result.modifiedCount
       },
       error: null,
-      message: `Procesados ${docs.length} documentos del lote.`
+        message: `Processed ${docs.length} documents from the batch.`
     });
 
   } catch (err) {
-    console.error("Error en postDataModel:", err);
+      console.error("Error in postDataModel:", err);
 
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "Error interno del servidor al guardar/actualizar los datos del lote."
+        message: "Internal server error while saving/updating batch data."
     });
   }
 }
@@ -90,14 +90,14 @@ async function getDataModel(req, res) {
     return res.status(200).json({
       data: items,
       error: null,
-      message: "Datos recuperados correctamente"
+      message: "Data retrieved successfully"
     });
   } catch (err) {
-    console.error("Error en getDataModel:", err);
+    console.error("Error in getDataModel:", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "No se pudieron recuperar los datos"
+        message: "Could not retrieve the data"
     });
   }
 }
@@ -107,10 +107,10 @@ async function patchDataModel(req, res) {
   const { field, value } = req.body;
 
   if (!field || value === undefined) {
-    return res.status(400).json({
-      data: null,
-      error: "Faltan 'field' o 'value'",
-      message: "Proporciona field y value"
+      return res.status(400).json({
+        data: null,
+        error: "Missing 'field' or 'value'",
+        message: "Provide field and value"
     });
   }
 
@@ -121,8 +121,8 @@ async function patchDataModel(req, res) {
   if (!ModelDB.schema.path(field)) {
     return res.status(400).json({
       data: null,
-      error: `El campo '${field}' no existe`,
-      message: "Campo inválido"
+        error: `Field '${field}' does not exist`,
+        message: "Invalid field"
     });
   }
 
@@ -136,21 +136,21 @@ async function patchDataModel(req, res) {
       return res.status(404).json({
         data: null,
         error: null,
-        message: `dbId ${dbId} no encontrado o sin cambios`
+          message: `dbId ${dbId} not found or unchanged`
       });
     }
 
     return res.status(200).json({
       data: null,
       error: null,
-      message: `Campo '${field}' actualizado correctamente`
+        message: `Field '${field}' updated successfully`
     });
   } catch (err) {
-    console.error("Error en patchDataModel:", err);
+      console.error("Error in patchDataModel:", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "Error al actualizar el documento"
+        message: "Error updating the document"
     });
   }
 }

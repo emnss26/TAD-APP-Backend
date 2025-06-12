@@ -33,8 +33,8 @@ async function postDataModel(req, res) {
   if (!candidates.length) {
     return res.status(400).json({
       data: [],
-      error: "No hay filas con dbId válido",
-      message: "Añade al menos un elemento con dbId"
+      error: "No rows with a valid dbId",
+      message: "Add at least one element with dbId"
     });
   }
 
@@ -83,12 +83,12 @@ async function postDataModel(req, res) {
       SerialNumber:       r.SerialNumber
     };
 
-    // Elimina propiedades nulas o indefinidas ANTES de validar si tu esquema es estricto
+  // Remove null or undefined properties BEFORE validating if your schema is strict
     Object.keys(rowDoc).forEach(key => (rowDoc[key] == null) && delete rowDoc[key]);
 
 
     if (!validateModelData(rowDoc)) {
-      console.warn(`Fila ${i} (dbId: ${r.dbId}) inválida:`, validateModelData.errors);
+      console.warn(`Row ${i} (dbId: ${r.dbId}) invalid:`, validateModelData.errors);
       return null;
     }
     return rowDoc;
@@ -97,45 +97,45 @@ async function postDataModel(req, res) {
   if (!validatedRows.length) {
     return res.status(400).json({
       data: [],
-      error: "Ninguna fila pasó la validación",
-      message: "Revisa el formato de tus datos o los errores de validación en la consola del backend."
+      error: "No rows passed validation",
+      message: "Check your data format or backend validation errors."
     });
   }
 
-  // 3) Ahora sí riqueza final con _key y metadatos
+  // 3) Now enrich with _key and metadata
   const docs = validatedRows.map(r => ({
-    _key: String(r.dbId), // La clave SODA será el dbId como string
+    _key: String(r.dbId), // The SODA key will be the dbId as string
     accountId,
     projectId,
     ...r // Incluye todas las propiedades validadas
   }));
 
-  const coll = getCollName(accountId, projectId); // Usa la función helper
+  const coll = getCollName(accountId, projectId); // Use the helper function
 
   try {
     
     const results = [];
-    // Itera sobre cada documento preparado y llama a upsertDoc
+      // Iterate over each prepared document and call upsertDoc
     for (const doc of docs) {
-        // console.log(`Intentando upsert para _key: ${doc._key} en colección ${coll}`); // Log para depuración
+        // console.log(`Attempting upsert for _key: ${doc._key} in collection ${coll}`); // Debug log
         const result = await upsertDoc(coll, doc._key, doc);
         results.push(result); // Opcional: guardar resultados si los necesitas
     }
 
-    // Devuelve los documentos originales enviados (o los resultados si prefieres)
+      // Return the original documents sent (or the results if you prefer)
     return res.status(200).json({
-      // data: results, // Podrías devolver los resultados del upsert si son útiles
-      data: docs, // Devuelve los documentos que se intentaron guardar/actualizar
+        // data: results, // You could return the upsert results if useful
+        data: docs, // Return the documents that were attempted to be saved/updated
       error: null,
-      message: `Procesados ${docs.length} documentos correctamente (actualizados o insertados).` // Mensaje corregido
+        message: `Processed ${docs.length} documents correctly (updated or inserted).`
     });
 
   } catch (err) {
-    console.error("Error en postDataModel durante el bucle de upsert:", err);
+    console.error("Error in postDataModel during upsert loop:", err);
     return res.status(500).json({
       data: null,
       error: err.message || String(err),
-      message: "Error al guardar/actualizar los datos. Uno o más documentos pudieron fallar."
+      message: "Error saving/updating data. One or more documents may have failed."
     });
   }
 }
@@ -160,14 +160,14 @@ async function getDataModel(req, res) {
     res.status(200).json({
       data: items,
       error: null,
-      message: 'Datos recuperados correctamente'
+        message: 'Data retrieved successfully'
     });
   } catch (err) {
-    console.error('Error al obtener docs:', err);
+    console.error('Error getting docs:', err);
     res.status(500).json({
       data: null,
       error: err.message,
-      message: 'No se pudieron recuperar los datos'
+      message: 'Could not retrieve the data'
     });
   }
 }
@@ -178,11 +178,11 @@ async function patchDataModel(req, res) {
   const coll = getCollName(accountId, projectId);
 
   if (!field || value === undefined) {
-    return res.status(400).json({
-      data: null,
-      error: "Faltan 'field' o 'value'",
-      message: "Proporciona field y value para actualizar",
-    });
+      return res.status(400).json({
+        data: null,
+        error: "Missing 'field' or 'value'",
+        message: "Provide field and value to update",
+      });
   }
 
   try {
@@ -193,8 +193,8 @@ async function patchDataModel(req, res) {
     if (!existing) {
       return res.status(404).json({
         data: null,
-        error: "No encontrado",
-        message: `No existe modelo con dbId ${dbId}`,
+        error: "Not found",
+        message: `No model with dbId ${dbId} exists`,
       });
     }
 
@@ -205,7 +205,7 @@ async function patchDataModel(req, res) {
     if (!validateModelData(updatedDoc)) {
       return res.status(400).json({
         data: null,
-        error: "Validación fallida",
+        error: "Validation failed",
         message: validateModelData.errors,
       });
     }
@@ -219,11 +219,11 @@ async function patchDataModel(req, res) {
       message: `Campo '${field}' actualizado correctamente`,
     });
   } catch (err) {
-    console.error("Error en patchDataModel:", err);
+    console.error("Error in patchDataModel:", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: "Error al actualizar el documento",
+      message: "Error updating the document",
     });
   }
 }

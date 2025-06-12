@@ -4,7 +4,7 @@ const axios = require("axios");
 const ORDS_URL = process.env.ORDS_URL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 if (!ORDS_URL || !ADMIN_PASSWORD) {
-  console.error("❌ Define ORDS_URL (sin /admin) y ADMIN_PASSWORD");
+  console.error("❌ Define ORDS_URL (without /admin) and ADMIN_PASSWORD");
   process.exit(1);
 }
 
@@ -21,22 +21,22 @@ const client = axios.create({
 const SCHEMA = "admin";
 const cache = new Set();
 
-/** Crea la colección si no existe (y lo cachea). */
+/** Create the collection if it doesn't exist (and cache it). */
 async function ensureCollection(name) {
   if (!name || typeof name !== "string") {
-    throw new Error(`ensureCollection: nombre inválido (${name})`);
+    throw new Error(`ensureCollection: invalid name (${name})`);
   }
   if (cache.has(name)) return;
   try {
-    //console.log(`🔨 Creando/asegurando colección "${name}"`);
+    //console.log(`🔨 Creating/ensuring collection "${name}"`);
     await client.put(`/${SCHEMA}/soda/latest/${encodeURIComponent(name)}`);
     cache.add(name);
   } catch (e) {
     if (e.response?.status === 409) {
-      // ya existía
+      // already existed
       cache.add(name);
     } else {
-      //console.error(`❌ Error asegurando colección "${name}":`, e.response?.data || e.message);
+      //console.error(`❌ Error ensuring collection "${name}":`, e.response?.data || e.message);
       throw e;
     }
   }
@@ -50,13 +50,13 @@ async function getDocs(collectionName, query = "") {
 }
 
 /**
- * Inserta o actualiza un único documento usando su _key:
- *  - Si ya hay uno con ese _key, hace PUT /{collection}/{id}
- *  - Si no, hace POST /{collection}
+ * Inserts or updates a single document using its _key:
+ *  - If there is one with that _key, performs PUT /{collection}/{id}
+ *  - Otherwise performs POST /{collection}
  */
 async function upsertDoc(collectionName, doc) {
   if (!doc || typeof doc._key !== "string") {
-    throw new Error(`upsertDoc: falta doc._key en ${JSON.stringify(doc)}`);
+    throw new Error(`upsertDoc: missing doc._key in ${JSON.stringify(doc)}`);
   }
   await ensureCollection(collectionName);
 
@@ -81,14 +81,14 @@ async function upsertDoc(collectionName, doc) {
 }
 
 /**
- * batchUpsert: recorre el array y llama a upsertDoc uno a uno.
+ * batchUpsert: iterates over the array and calls upsertDoc one by one.
  */
 async function batchUpsert(collectionName, docs = []) {
   if (!Array.isArray(docs)) {
-    throw new Error("batchUpsert: docs debe ser un array");
+    throw new Error("batchUpsert: docs must be an array");
   }
   if (docs.length === 0) {
-    console.log("batchUpsert: array vacío, nada que hacer");
+    console.debug("batchUpsert: empty array, nothing to do");
     return;
   }
   for (const doc of docs) {
