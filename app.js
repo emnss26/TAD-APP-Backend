@@ -81,21 +81,21 @@ app.use(
 // Rate limiters
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,   
-  max: 30,                    
+  max: 60,                    
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: 'Too many authentication requests, slow down.' }
 });
 const writeLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,    
-  max: 30,                    
+  max: 60,                    
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: 'Too many write operations, please wait.' }
 });
 const readLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,    
-  max: 300,                   
+  max: 600,                   
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: 'Too many requests, please wait.' }
