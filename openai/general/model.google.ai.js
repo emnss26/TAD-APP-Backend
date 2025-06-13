@@ -1,14 +1,27 @@
-const express = require("express");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const  getDb  = require("../../config/mongodb.js");
-const modelSchema = require("../../resources/schemas/model.schema.js");
-const { sanitize } = require("../../libs/utils/sanitaze.db.js");
+
+const express = require('express');
+const {GoogleGenerativeAI} = require('@google/generative-ai');
+const getDb  = require("../../config/mongodb.js");
+const modeldatabaseSchema = require('../../resources/schemas/model.schema.js');
+const {sanitize} = require('../../libs/utils/sanitaze.db.js');
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const router = express.Router();
 
-router.post("/model-da", async (req, res) => {
-  const { message, accountId, projectId } = req.body;
+async function buildModelDataContext(accountId, projectId) {
+  const db = await getDb();
+  const safeAcc = sanitize(accountId);
+  const safeProj = sanitize(projectId.replace(/^b\./, ""));
+  const collName = `${safeAcc}_${safeProj}_modeldatabase`;
+  const ModelDB = db.model("ModelDatabase", modeldatabaseSchema, collName);
+  const records = await ModelDB.find().lean();
+  const summary = records.slice(0, 50).map(r => `${r.dbId}: ${r.TypeName || r.ElementType || "N/A"}`).join("; ");
+  return { full: records, summary };
+}
+
+async function handleAIRequest(req, res, mode) {
+  const { message, accountId, projectId, contextData } = req.body;
+
   if (!message || !accountId || !projectId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -16,67 +29,66 @@ router.post("/model-da", async (req, res) => {
     return res.status(500).json({ error: "Google API key not set" });
   }
 
-  try {
-    const db = await getDb();
-    const projId = projectId.startsWith("b.") ? projectId.substring(2) : projectId;
-    const coll = `${sanitize(accountId)}_${sanitize(projId)}_models`;
-    const Models = db.model("Models", modelSchema, coll);
-    const models = await Models.find({}).lean().exec();
+   try {
+    const { full: records, summary } = contextData
+      ? { full: contextData, summary: contextData.map(r=>r.dbId).join(",") }
+      : await buildModelDataContext(accountId, projectId);
 
-    // Summary calculation by discipline
-    const total = models.length;
-    const byDiscipline = models.reduce((acc, m) => {
-      const d = m.Discipline || "Unknown";
-      acc[d] = (acc[d] || 0) + 1;
-      return acc;
-    }, {});
-    const countsSummary = [`Total Models: ${total}`]
-      .concat(Object.entries(byDiscipline).map(([d, c]) => `${d}: ${c}`))
-      .join(" | ");
+      const formatRecord = r => Object.entries(r)
+      .map(([k,v])=>`${k}: ${v}`)
+      .join(", ");
+    const formattedData = records.slice(0,100).map(formatRecord).join("\n---\n");
 
-    // Detailed data
-    const details = models.map(m => (
-      `Model ID: ${m.dbId || "N/A"}
-Type Name: ${m.TypeName || "N/A"}
-Discipline: ${m.Discipline || "N/A"}
-Dimensions (L×W×H): ${m.Length||"-"}×${m.Width||"-"}×${m.Height||"-"}
-Volume: ${m.Volume||"-"} ${m.Unit||""}
-Total Cost: ${m.TotalCost||"N/A"}`
-    )).join("\n---\n");
+    console.log("Model context data:", contextData)
+    
+    let promptIntro;
+    switch(mode) {
+      case 'dbid':
+        promptIntro = `You are analyzing one model element. Answer based on the element's properties.`;
+        break;
+      case 'update':
+        promptIntro = `You are assisting to update a field of a model element. Reply with JSON: { dbIds: [...], action: 'update', field: 'FieldName', value: 'NewValue' and optional discipline for refresh }`;
+        break;
+      case 'viewer':
+        promptIntro = `You are issuing viewer commands: isolate, hide, or highlight. Reply with JSON { action: 'isolate'|'hide'|'highlight', dbIds: [...] }.`;
+        break;
+      case 'daterange':
+        promptIntro = `You are computing construction date ranges. Describe earliest and latest plan dates.`;
+        break;
+      default:
+        promptIntro = `You are a virtual assistant that answers questions about model data.`;
+    }
 
-    const prompt = `
-You are a virtual assistant specialized in managing building model database entries.
-Use ONLY the data provided below.
+    const fullPrompt = `${promptIntro}
+Here is a brief summary of available elements:
+${summary}
 
-SUMMARY:
-${countsSummary}
+Detailed data (first 100 records):
+${formattedData}
 
-DETAILED MODEL DATA:
---- MODEL DATA START ---
-${details}
---- MODEL DATA END ---
+Question: ${message}`;
 
-INSTRUCTIONS:
-- Use the SUMMARY to answer count or discipline-related questions.
-- Use the DETAILED DATA for specific model queries.
-- Refer to models by their ID when possible.
-- If something isn’t in the data, say you don’t have that information.
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const genConfig = { temperature: 0.2 };
+    const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: fullPrompt }] }], generationConfig: genConfig });
+    const reply = result.response.candidates[0].content.parts[0].text.trim();
 
-QUESTION: ${message}
-`.trim();
+    // Try to parse JSON for update/viewer commands
+    let payload;
+    try { payload = JSON.parse(reply); } catch(e) { payload = null; }
 
-    const result = await genAI
-      .getGenerativeModel({ model: "gemini-1.5-flash-latest" })
-      .generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2 },
-      });
-    const reply = (await result.response).text().trim();
-    res.json({ reply });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.json({ reply, ...(payload || {}) });
+  } catch (err) {
+    console.error("Error in AI modeldata:", err);
+    res.status(500).json({ error: err.message });
   }
-});
+}
+
+// Routes
+router.post('/', (req, res) => handleAIRequest(req, res, 'general'));
+router.post('/dbid-question', (req, res) => handleAIRequest(req, res, 'dbid'));
+router.post('/update-field', (req, res) => handleAIRequest(req, res, 'update'));
+router.post('/autodesk-command', (req, res) => handleAIRequest(req, res, 'viewer'));
+router.post('/date-range', (req, res) => handleAIRequest(req, res, 'daterange'));
 
 module.exports = router;
