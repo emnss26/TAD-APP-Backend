@@ -1,4 +1,3 @@
-// config/mongodb.js
 const mongoose = require('mongoose');
 
 const url = process.env.MONGODB_DATABASE_URL;
