@@ -12,11 +12,11 @@ router.post("/users", async (req, res) => {
   let { message, accountId, projectId } = req.body;
 
   if (!message || !accountId || !projectId) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ data: null, error: 'Missing required fields', message: 'Missing required fields' });
   }
 
   if (!process.env.GOOGLE_API_KEY) {
-    return res.status(500).json({ error: "Google API key not set" });
+    return res.status(500).json({ data: null, error: 'Google API key not set', message: 'Google API key not set' });
   }
 
   try {
@@ -54,7 +54,7 @@ router.post("/users", async (req, res) => {
     ).length;
 
     if (!users || users.length === 0) {
-      return res.status(404).json({ error: "No users found" });
+      return res.status(404).json({ data: null, error: 'No users found', message: 'No users found' });
     }
 
     const usersData = users
@@ -135,14 +135,16 @@ router.post("/users", async (req, res) => {
         response?.promptFeedback?.safetyRatings || {}
       );
       return res.status(500).json({
+        data: null,
         error: `No response from Google AI. Reason: ${reason}. Safety Ratings: ${safetyRatings}`,
+        message: 'AI response empty'
       });
     }
 
-    res.json({ reply });
+    res.json({ data: { reply }, error: null, message: null });
   } catch (error) {
     console.error("Error processing request:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ data: null, error: 'Internal server error', message: 'Internal server error' });
   }
 });
 
