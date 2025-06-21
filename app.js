@@ -1,18 +1,16 @@
+const env = require('./config/env.js');
 const express = require("express");
 const rateLimit = require('express-rate-limit');
 const morgan = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
-const dotenv = require("dotenv");
-const csurf = require("csurf");
 
-dotenv.config();
 require('./config/mongodb.js');
 
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  env.FRONTEND_URL,
   "http://localhost:5173",
   "https://tad-app-fronend.vercel.app",
 ];
@@ -69,7 +67,7 @@ app.use(
       ],
       connectSrc: [
         "'self'",
-        "https://developer.api.autodesk.com",
+        env.AUTODESK_BASE_URL,
         "https://cdn.derivative.autodesk.com",
         "https://tad-app-backend.vercel.app",
         "https://tad-app-fronend.vercel.app",
@@ -116,7 +114,7 @@ app.use((req, res, next) => {
   return csurf({
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.NODE_ENV === 'production',
       sameSite: 'Lax',
     },
   })(req, res, next);
@@ -180,7 +178,7 @@ app.use((err, req, res, next) => {
 
 // Global error handling
 app.use((err, req, res, next) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     console.error(err.stack);
     return res.status(err.status || 500).json({
       message: err.message,

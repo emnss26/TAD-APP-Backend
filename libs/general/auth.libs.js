@@ -1,11 +1,12 @@
+const env = require('../../config/env.js');
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 
-const APS_CLIENT_ID = process.env.APS_CLIENT_ID;
-const APS_CLIENT_SECRET = process.env.APS_CLIENT_SECRET;
+const APS_CLIENT_ID = env.APS_CLIENT_ID;
+const APS_CLIENT_SECRET = env.APS_CLIENT_SECRET;
 const redirect_uri =
-  process.env.REDIRECT_URI || "http://localhost:3000/auth/three-legged";
+  env.REDIRECT_URI || "http://localhost:3000/auth/three-legged";
 
 const GetAPSThreeLeggedToken = async (code) => {
   if (!APS_CLIENT_ID || !APS_CLIENT_SECRET) {
@@ -32,7 +33,7 @@ const GetAPSThreeLeggedToken = async (code) => {
 
   try {
     const { data } = await axios.post(
-      "https://developer.api.autodesk.com/authentication/v2/token",
+      `${env.AUTODESK_BASE_URL}/authentication/v2/token`,
       new URLSearchParams(requestdata).toString(),
       { headers }
     );
@@ -66,7 +67,7 @@ const GetAPSToken = async () => {
   };
 
   const { data } = await axios.post(
-    "https://developer.api.autodesk.com/authentication/v2/token",
+    `${env.AUTODESK_BASE_URL}/authentication/v2/token`,
     new URLSearchParams(requestdata).toString(),
     { headers }
   );

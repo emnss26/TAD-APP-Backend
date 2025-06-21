@@ -1,3 +1,4 @@
+const env = require('../../config/env.js');
 const axios = require("axios");
 const approvedemails = require("../../const/approvedemails");
 const {
@@ -6,7 +7,7 @@ const {
 } = require("../../libs/general/auth.libs");
 
 const fronend_url =
-  process.env.FRONTEND_URL || "http://localhost:5173";
+  env.FRONTEND_URL || "http://localhost:5173";
 
   const GetThreeLegged = async (req, res) => {
     const { code } = req.query;
@@ -14,7 +15,7 @@ const fronend_url =
     try {
       const token = await GetAPSThreeLeggedToken(code);
       const { data: userData } = await axios.get(
-        "https://developer.api.autodesk.com/userprofile/v1/users/@me",
+        "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const userEmail = userData.emailId;

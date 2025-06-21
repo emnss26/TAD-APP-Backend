@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const axios = require('axios');
 
 const GetAllProjectUsers = async (token, projectId) => {
@@ -11,7 +12,7 @@ const GetAllProjectUsers = async (token, projectId) => {
         }
 
         let allProjectUsers = [];
-        let nextUrl = `\thttps://developer.api.autodesk.com/construction/admin/v1/projects/${projectId}/users?limit=20&offset=0`;
+        let nextUrl = `\t${env.AUTODESK_BASE_URL}/construction/admin/v1/projects/${projectId}/users?limit=20&offset=0`;
 
         while (nextUrl) {
               const { data: users } = await axios.get(nextUrl, {

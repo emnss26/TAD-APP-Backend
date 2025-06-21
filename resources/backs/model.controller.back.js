@@ -1,3 +1,4 @@
+const env = require('../../config/env.js');
 const { default: axios } = require("axios");
 
 const { format } = require("morgan");
@@ -5,8 +6,8 @@ const { format } = require("morgan");
 const { insertDocs, upsertDoc, getDocs} = require("../../config/database");
 
 const { validateModelData } = require("../../config/database.schema");
-const ORDS_URL = process.env.ORDS_URL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ORDS_URL = env.ORDS_URL;
+const ADMIN_PASSWORD = env.ADMIN_PASSWORD;
 const basicAuth = Buffer.from(`ADMIN:${ADMIN_PASSWORD}`).toString("base64");
 
 const client = axios.create({
@@ -18,7 +19,7 @@ const client = axios.create({
   timeout: 5000,
 });
 
-const SCHEMA = process.env.ORDS_SCHEMA || 'admin';
+const SCHEMA = env.ORDS_SCHEMA || 'admin';
 
 function getCollName(accountId, projectId) {
   return `${accountId}_${projectId}_modeldatabase`;

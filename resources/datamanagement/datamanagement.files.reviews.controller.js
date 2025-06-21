@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const axios = require("axios");
 const { GetProjectReviews } = require("../../libs/general/revisions.libs.js");
 
@@ -33,7 +34,7 @@ const GetFileRevisionStatus = async (req, res) => {
     const merged = await Promise.all(
       itemIds.map(async (itemId) => {
         const url =
-          `https://developer.api.autodesk.com/construction/reviews/v1/projects/${projectId}` +
+          `${env.AUTODESK_BASE_URL}/construction/reviews/v1/projects/${projectId}` +
           `/versions/${encodeURIComponent(itemId)}/approval-status`;
 
         const { data: resp } = await axios.get(url, {

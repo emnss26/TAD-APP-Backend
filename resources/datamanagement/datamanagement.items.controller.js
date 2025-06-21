@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const axios = require("axios");
 
 const GetFileData = async (req, res) =>{
@@ -26,7 +27,7 @@ const GetFileData = async (req, res) =>{
   try {
     const itemsDetails = await Promise.all(
       itemIds.map(async (itemId) => {
-        const url = `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${itemId}`;
+        const url = `${env.AUTODESK_BASE_URL}/data/v1/projects/${projectId}/items/${itemId}`;
 
         const res = await axios.get(url, {
           headers: {

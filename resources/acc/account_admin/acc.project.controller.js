@@ -1,3 +1,4 @@
+const env = require("../../../config/env.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 const { authorizedHubs } = require("../../../const/target.hubs.js");
@@ -17,7 +18,7 @@ const GetProject = async (req, res) => {
 
   try {
     const { data: projectdata } = await axios.get(
-      `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}`,
+      `${env.AUTODESK_BASE_URL}/project/v1/hubs/${accountId}/projects/${projectId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

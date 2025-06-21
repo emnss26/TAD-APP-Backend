@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
@@ -40,7 +41,7 @@ const GetSubmittals = async (req, res) => {
 
   try {
     const submittals = await fetchAllPaginatedResults(
-      `https://developer.api.autodesk.com/construction/submittals/v2/projects/${projectId}/items`,
+      `${env.AUTODESK_BASE_URL}/construction/submittals/v2/projects/${projectId}/items`,
       token
     );
 
