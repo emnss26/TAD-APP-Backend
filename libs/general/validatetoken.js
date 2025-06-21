@@ -1,3 +1,4 @@
+const env = require("../config/env.js");
 const axios = require("axios");
 
 const validateAutodeskToken = async (req, res, next) => {
@@ -7,7 +8,7 @@ const validateAutodeskToken = async (req, res, next) => {
 
   try {
     const { data } = await axios.get(
-      "https://developer.api.autodesk.com/userprofile/v1/users/@me",
+      "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
       { headers: { Authorization: `Bearer ${token}` } }
     );
 

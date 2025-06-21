@@ -30,6 +30,7 @@ ORDS_SCHEMA=admin              # optional
 MONGODB_DATABASE_URL=mongodb://localhost:27017/tad
 
 GOOGLE_API_KEY=<Google generative AI API key>
+AUTODESK_BASE_URL=https://developer.api.autodesk.com
 NODE_ENV=development           # production or development
 ```
 

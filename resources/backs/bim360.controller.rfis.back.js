@@ -1,3 +1,4 @@
+const env = require("../../../config/env.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
@@ -32,7 +33,7 @@ const GetRfis = async (req, res) => {
 
   try {
     const rfis = await fetchAllPaginatedResults(
-      `https://developer.api.autodesk.com/bim360/rfis/v2/containers/${projectId}/rfis`,
+      `${env.AUTODESK_BASE_URL}/bim360/rfis/v2/containers/${projectId}/rfis`,
       token
     );
 

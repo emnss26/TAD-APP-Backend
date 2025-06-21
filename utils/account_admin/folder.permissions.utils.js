@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const axios = require("axios");
 
 /**
@@ -15,7 +16,7 @@ async function GetFolderPermissions(token, projectId, folders) {
   const calls = folders.map((f) =>
     limit(async () => {
       const { data } = await axios.get(
-        `https://developer.api.autodesk.com/bim360/docs/v1/projects/${projectId}/folders/${f.id}/permissions`,
+        `${env.AUTODESK_BASE_URL}/bim360/docs/v1/projects/${projectId}/folders/${f.id}/permissions`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

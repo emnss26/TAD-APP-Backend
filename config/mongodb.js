@@ -1,6 +1,7 @@
+const env = require('./env.js');
 const mongoose = require('mongoose');
 
-const url = process.env.MONGODB_DATABASE_URL;
+const url = env.MONGODB_DATABASE_URL;
 if (!url) {
   console.error('❌ Define MONGODB_DATABASE_URL');
   process.exit(1);

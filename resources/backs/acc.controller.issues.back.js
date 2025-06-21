@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
@@ -41,7 +42,7 @@ const GetIssues = async (req, res) => {
 
   try {
     const issues = await fetchAllPaginatedResults(
-      `https://developer.api.autodesk.com/construction/issues/v1/projects/${projectId}/issues`,
+      `${env.AUTODESK_BASE_URL}/construction/issues/v1/projects/${projectId}/issues`,
       token
     );
 

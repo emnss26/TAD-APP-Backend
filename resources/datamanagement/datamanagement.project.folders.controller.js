@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const { default: axios } = require("axios");
 
 const { format } = require("morgan");
@@ -18,7 +19,7 @@ const GetFoldersStructure = async (req, res) => {
 
   try {
     const topFolders = await axios.get(
-      `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
+      `${env.AUTODESK_BASE_URL}/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

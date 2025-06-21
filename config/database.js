@@ -1,7 +1,8 @@
+const env = require('./env.js');
 const axios = require("axios");
 
-const ORDS_URL = process.env.ORDS_URL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ORDS_URL = env.ORDS_URL;
+const ADMIN_PASSWORD = env.ADMIN_PASSWORD;
 if (!ORDS_URL || !ADMIN_PASSWORD) {
   console.error("❌ Define ORDS_URL (sin /admin) y ADMIN_PASSWORD");
   process.exit(1);

@@ -1,10 +1,11 @@
+const env = require('../../config/env.js');
 const express = require("express");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const  getDb  = require("../../config/mongodb.js");
 const submittalsSchema = require("../../resources/schemas/submittals.schema.js");
 const { sanitize } = require("../../libs/utils/sanitaze.db.js");
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
 const router = express.Router();
 
 router.post("/submittals", async (req, res) => {
@@ -12,7 +13,7 @@ router.post("/submittals", async (req, res) => {
   if (!message || !accountId || !projectId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-  if (!process.env.GOOGLE_API_KEY) {
+  if (!env.GOOGLE_API_KEY) {
     return res.status(500).json({ error: "Google API key not set" });
   }
 

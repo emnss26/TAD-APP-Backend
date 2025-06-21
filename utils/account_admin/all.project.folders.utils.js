@@ -1,8 +1,9 @@
+const env = require("../../config/env.js");
 const axios = require("axios");
 
 async function getRootFolderId(token, accountId, projectId) {
   const { data } = await axios.get(
-    `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
+    `${env.AUTODESK_BASE_URL}/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   const top = data.data || [];
@@ -17,7 +18,7 @@ async function getRootFolderId(token, accountId, projectId) {
 
 async function listFoldersRecursively(token, projectId, folderId) {
   const { data } = await axios.get(
-    `https://developer.api.autodesk.com/data/v1/projects/${projectId}/folders/${folderId}/contents`,
+    `${env.AUTODESK_BASE_URL}/data/v1/projects/${projectId}/folders/${folderId}/contents`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   const items = data.data || [];

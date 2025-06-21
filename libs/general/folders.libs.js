@@ -1,3 +1,4 @@
+const env = require("../config/env.js");
 const axios = require("axios");
 
 
@@ -8,7 +9,7 @@ const GetFederatedModelFromFolders = async ({
   matchWord,
   filterFn,
 }) => {
-  const url = `https://developer.api.autodesk.com/data/v1/projects/${projectId}/folders/${folderId}/contents`;
+  const url = `${env.AUTODESK_BASE_URL}/data/v1/projects/${projectId}/folders/${folderId}/contents`;
 
   const { data: folderContent } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },

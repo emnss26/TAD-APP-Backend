@@ -1,7 +1,8 @@
+const env = require("../config/env.js");
 const axios = require("axios");
 
 const GetProjectReviews = async (token, projectId) => {
-  const url = `https://developer.api.autodesk.com/construction/reviews/v1/projects/${projectId}/reviews`;
+  const url = `${env.AUTODESK_BASE_URL}/construction/reviews/v1/projects/${projectId}/reviews`;
 
   const headers = {
     Authorization: `Bearer ${token}`,

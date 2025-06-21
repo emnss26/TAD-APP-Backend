@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
@@ -9,7 +10,7 @@ const GetUserProfile = async (req, res) => {
     }
 
     const response = await axios.get(
-      "https://developer.api.autodesk.com/userprofile/v1/users/@me",
+      "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
       {
         headers: {
           Authorization: `Bearer ${token}`,
