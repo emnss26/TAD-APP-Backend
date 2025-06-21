@@ -1,4 +1,4 @@
-const env = require('../../config/env.js');
+const env = require('../../config/index.js');
 const axios = require("axios");
 
 const fronend_url = env.FRONTEND_URL || "http://localhost:5173";

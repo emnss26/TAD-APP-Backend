@@ -1,7 +1,7 @@
-const env = require("../../../config/env.js");
+const env = require("../../../config/index.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
-const { authorizedHubs } = require("../../../const/target.hubs.js");
+const { AUTHORIZED_HUBS: authorizedHubs } = require("../../../config/index.js");
 
 const GetProject = async (req, res) => {
   const token = req.cookies["access_token"];

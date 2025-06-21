@@ -1,4 +1,4 @@
-const env = require("../../config/env.js");
+const env = require("../../config/index.js");
 const axios = require("axios");
 
 async function getRootFolderId(token, accountId, projectId) {

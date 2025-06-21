@@ -1,12 +1,13 @@
-const env = require("../../config/env.js");
+const env = require("../../config/index.js");
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 
 const APS_CLIENT_ID = env.APS_CLIENT_ID;
 const APS_CLIENT_SECRET = env.APS_CLIENT_SECRET;
-const redirect_uri =
-  env.REDIRECT_URI || "http://localhost:3000/auth/three-legged";
+const redirect_uri = env.REDIRECT_URI;
+const threeLeggedScopes = env.TOKEN_SCOPES.threeLegged;
+const twoLeggedScopes = env.TOKEN_SCOPES.twoLegged;
 
 const GetAPSThreeLeggedToken = async (code) => {
   if (!APS_CLIENT_ID || !APS_CLIENT_SECRET) {
@@ -22,7 +23,7 @@ const GetAPSThreeLeggedToken = async (code) => {
     grant_type: "authorization_code",
     code: code,
     redirect_uri: redirect_uri,
-    scope: "data:read data:write data:create account:read viewables:read",
+    scope: threeLeggedScopes,
   };
 
   const headers = {
@@ -63,7 +64,7 @@ const GetAPSToken = async () => {
 
   const requestdata = {
     grant_type: "client_credentials",
-    scope: "data:read data:write bucket:create bucket:read bucket:delete",
+    scope: twoLeggedScopes,
   };
 
   const { data } = await axios.post(
