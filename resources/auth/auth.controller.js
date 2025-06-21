@@ -1,6 +1,6 @@
 const env = require('../../config/env.js');
 const axios = require("axios");
-const approvedemails = require("../../const/approvedemails");
+const approvedemails = require("../../config/env.js");
 const {
   GetAPSThreeLeggedToken,
   GetAPSToken,
@@ -14,17 +14,17 @@ const fronend_url =
   
     try {
       const token = await GetAPSThreeLeggedToken(code);
-      const { data: userData } = await axios.get(
-        "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const userEmail = userData.emailId;
+      // const { data: userData } = await axios.get(
+      //   `${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me`,
+      //   { headers: { Authorization: `Bearer ${token}` } }
+      // );
+      // const userEmail = userData.emailId;
   
-      if (
-        !approvedemails.approvedemails.some(u => u.email === userEmail)
-      ) {
-        return res.redirect(`${fronend_url}/not-authorized`);
-      }
+      // if (
+      //   !approvedemails.approvedemails.some(u => u.email === userEmail)
+      // ) {
+      //   return res.redirect(`${fronend_url}/not-authorized`);
+      // }
   
    
       res.cookie("access_token", token, {

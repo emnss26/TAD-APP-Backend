@@ -26,7 +26,7 @@ const GetProjectUsers = async (req, res) => {
 
   try {
     let allProjectUsers = [];
-    let nextUrl = `	${env.AUTODESK_BASE_URL}/construction/admin/v1/projects/${projectId}/users?limit=20&offset=0`;
+    let nextUrl = `${env.AUTODESK_BASE_URL}/construction/admin/v1/projects/${projectId}/users?limit=20&offset=0`;
 
     while (nextUrl) {
       const { data: users } = await axios.get(nextUrl, {

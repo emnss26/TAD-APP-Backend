@@ -10,7 +10,7 @@ const GetUserProfile = async (req, res) => {
     }
 
     const response = await axios.get(
-      "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
+      `${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

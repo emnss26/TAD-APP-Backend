@@ -18,7 +18,7 @@ const GetProjects = async (req, res) => {
     //console.log('Token:', token);
 
     const { data: hubsdata } = await axios.get(
-      "${env.AUTODESK_BASE_URL}/project/v1/hubs",
+      `${env.AUTODESK_BASE_URL}/project/v1/hubs`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

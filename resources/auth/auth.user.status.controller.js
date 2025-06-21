@@ -13,7 +13,7 @@ const GetUserStatus = async (req, res) => {
   try {
  
     const { data: userData } = await axios.get(
-      "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
+      `${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
