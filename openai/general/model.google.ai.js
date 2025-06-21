@@ -24,10 +24,12 @@ async function handleAIRequest(req, res, mode) {
   const { message, accountId, projectId, contextData } = req.body;
 
   if (!message || !accountId || !projectId) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ data: null, error: 'Missing required fields', message: 'Missing required fields' });
   }
-  if (!env.GOOGLE_API_KEY) {
-    return res.status(500).json({ error: "Google API key not set" });
+
+  if (!process.env.GOOGLE_API_KEY) {
+    return res.status(500).json({ data: null, error: 'Google API key not set', message: 'Google API key not set' });
+
   }
 
    try {
@@ -78,10 +80,10 @@ Question: ${message}`;
     let payload;
     try { payload = JSON.parse(reply); } catch(e) { payload = null; }
 
-    res.json({ reply, ...(payload || {}) });
+    res.json({ data: { reply, ...(payload || {}) }, error: null, message: null });
   } catch (err) {
     console.error("Error in AI modeldata:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ data: null, error: err.message, message: 'Internal server error' });
   }
 }
 

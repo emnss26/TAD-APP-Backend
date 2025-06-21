@@ -7,7 +7,7 @@ const GetUserStatus = async (req, res) => {
   const token = req.cookies["access_token"];
 
   if (!token) {
-    return res.status(401).json({ authenticated: false });
+    return res.status(401).json({ data: { authenticated: false }, error: null, message: 'Unauthorized' });
   }
 
   try {
@@ -22,13 +22,13 @@ const GetUserStatus = async (req, res) => {
     );
 
     if (userData?.userId) {
-      return res.status(200).json({ authenticated: true });
+      return res.status(200).json({ data: { authenticated: true }, error: null, message: null });
     }
 
-    return res.status(401).json({ authenticated: false });
+    return res.status(401).json({ data: { authenticated: false }, error: null, message: 'Unauthorized' });
   } catch (error) {
     console.error("🔐 Error validating Autodesk token:", error.message);
-    return res.status(401).json({ authenticated: false });
+    return res.status(401).json({ data: { authenticated: false }, error: null, message: 'Invalid token' });
   }
 };
 

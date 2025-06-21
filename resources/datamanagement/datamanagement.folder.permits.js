@@ -13,7 +13,9 @@ const {
 async function GetFolderPermits(req, res) {
   const token = req.cookies["access_token"];
   const { accountId, projectId } = req.params;
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
+  if (!token) {
+    return res.status(401).json({ data: null, error: 'Unauthorized', message: 'Unauthorized' });
+  }
 
   try {
     const folders = await GetAllProjectFolders(token, accountId, projectId);
@@ -107,7 +109,7 @@ async function GetFolderPermits(req, res) {
     });
   } catch (err) {
     console.error("GetFolderPermits:", err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ data: null, error: err.message, message: 'Internal server error' });
   }
 }
 

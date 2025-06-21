@@ -79,9 +79,9 @@ const createTask = async (req, res) => {
     console.error("Error creating tasks:", error);
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map(v => v.message);
-      return res.status(400).json({ error: messages.join(" ") });
+      return res.status(400).json({ data: null, error: messages.join(' '), message: messages.join(' ') });
     }
-      return res.status(500).json({ message: "Server error while creating tasks." });
+      return res.status(500).json({ data: null, error: 'Server error while creating tasks.', message: 'Server error while creating tasks.' });
   }
 };
 
@@ -97,7 +97,7 @@ const getAllTasks = async (req, res) => {
       return res.json({ data: tasks, error: null, message: "Tasks retrieved successfully." });
   } catch (error) {
     console.error("Error fetching tasks:", error);
-      return res.status(500).json({ message: "Server error while fetching tasks." });
+      return res.status(500).json({ data: null, error: 'Server error while fetching tasks.', message: 'Server error while fetching tasks.' });
   }
 };
 
@@ -132,9 +132,9 @@ const updateTask = async (req, res) => {
     console.error("Error updating task:", error);
     if (error.name === "ValidationError") {
       const msgs = Object.values(error.errors).map(v => v.message);
-      return res.status(400).json({ error: msgs.join(" ") });
+      return res.status(400).json({ data: null, error: msgs.join(' '), message: msgs.join(' ') });
     }
-      return res.status(500).json({ message: "Server error while updating the task." });
+      return res.status(500).json({ data: null, error: 'Server error while updating the task.', message: 'Server error while updating the task.' });
   }
 };
 
@@ -153,7 +153,7 @@ const deleteTask = async (req, res) => {
       return res.status(404).json({ data: null, error: "Not Found", message: "Task not found." });
   } catch (error) {
     console.error("Error deleting task:", error);
-    return res.status(500).json({ message: "Server error while deleting the task." });
+    return res.status(500).json({ data: null, error: 'Server error while deleting the task.', message: 'Server error while deleting the task.' });
   }
 };
 

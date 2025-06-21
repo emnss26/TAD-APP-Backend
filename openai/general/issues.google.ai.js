@@ -15,11 +15,13 @@ router.post("/issues", async (req, res) => {
   let { message, accountId, projectId } = req.body;
 
   if (!message || !accountId || !projectId) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ data: null, error: 'Missing required fields', message: 'Missing required fields' });
   }
 
-  if (!env.GOOGLE_API_KEY) {
-    return res.status(500).json({ error: "Google API key not set" });
+
+  if (!process.env.GOOGLE_API_KEY) {
+    return res.status(500).json({ data: null, error: 'Google API key not set', message: 'Google API key not set' });
+
   }
 
   try {
@@ -62,7 +64,7 @@ router.post("/issues", async (req, res) => {
     console.debug("In Review Issues:", inreviewIssues);
 
     if (totalIssues === 0) {
-      return res.json({ reply: "I found no issues data for this project." });
+      return res.json({ data: { reply: 'I found no issues data for this project.' }, error: null, message: null });
     }
 
     const formattedIssuesData = issues
@@ -179,21 +181,19 @@ Please respond clearly in English and concisely to the following question: ${mes
       }
     }
 
-    const reply = response.candidates[0].content.parts[0].text.trim(); 
+    const reply = response.candidates[0].content.parts[0].text.trim();
 
-    res.json({ reply });
+    res.json({ data: { reply }, error: null, message: null });
   } catch (error) {
-    console.error("Error processing /ai/issues request:", error); 
+    console.error("Error processing /ai/issues request:", error);
     if (error.message.includes("collection")) {
       res
         .status(500)
-        .json({ error: "Database error while processing issues." });
+        .json({ data: null, error: 'Database error while processing issues.', message: 'Database error' });
     } else {
       res
         .status(500)
-        .json({
-          error: "Internal server error processing the issues request.",
-        });
+        .json({ data: null, error: 'Internal server error processing the issues request.', message: 'Internal server error' });
     }
   }
 });

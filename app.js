@@ -101,6 +101,8 @@ const readLimiter = rateLimit({
 
 // Cookies and CSRF
 app.use(cookieParser());
+// Standardize API responses
+app.use(require('./libs/utils/response.format.js'));
 app.use((req, res, next) => {
   if (
     req.path.startsWith('/ai-') ||
@@ -121,8 +123,8 @@ app.use((req, res, next) => {
 });
 
 // Endpoint to obtain the CSRF token
-app.get("/csrf-token", (req, res) => {
-  res.status(200).json({ csrfToken: req.csrfToken() });
+app.get('/csrf-token', (req, res) => {
+  res.status(200).json({ data: { csrfToken: req.csrfToken() }, error: null, message: null });
 });
 
 // Authentication (login/logout/token)
@@ -157,8 +159,8 @@ app.use('/ai-rfis', require("./openai/general/rfis.google.ai.js"));
 app.use('/ai-modeldata', require("./openai/general/model.google.ai.js"));
 
 // Health check
-app.get("/", (req, res) => {
-  res.json({ message: "TAD‑APP‑Backend API is alive 🚀" });
+app.get('/', (req, res) => {
+  res.json({ data: null, error: null, message: 'TAD‑APP‑Backend API is alive 🚀' });
 });
 
 // Iniciar servidor (si se ejecuta directamente)
@@ -181,12 +183,13 @@ app.use((err, req, res, next) => {
   if (env.NODE_ENV === 'development') {
     console.error(err.stack);
     return res.status(err.status || 500).json({
-      message: err.message,
-      stack: err.stack
+      data: null,
+      error: err.stack,
+      message: err.message
     });
   }
   console.error(err.message);
-  res.status(err.status || 500).json({ message: 'Internal server error' });
+  res.status(err.status || 500).json({ data: null, error: err.message, message: 'Internal server error' });
 });
 
 module.exports = app;

@@ -11,10 +11,12 @@ const router = express.Router();
 router.post("/rfis", async (req, res) => {
   const { message, accountId, projectId } = req.body;
   if (!message || !accountId || !projectId) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ data: null, error: 'Missing required fields', message: 'Missing required fields' });
   }
-  if (!env.GOOGLE_API_KEY) {
-    return res.status(500).json({ error: "Google API key not set" });
+
+  if (!process.env.GOOGLE_API_KEY) {
+    return res.status(500).json({ data: null, error: 'Google API key not set', message: 'Google API key not set' });
+
   }
 
   try {
@@ -79,10 +81,10 @@ QUESTION: ${message}
         generationConfig: { temperature: 0.2 },
       });
     const reply = (await result.response).text().trim();
-    res.json({ reply });
+    res.json({ data: { reply }, error: null, message: null });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ data: null, error: 'Internal server error', message: 'Internal server error' });
   }
 });
 
