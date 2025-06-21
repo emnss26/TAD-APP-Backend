@@ -34,6 +34,22 @@ AUTODESK_BASE_URL=https://developer.api.autodesk.com
 NODE_ENV=development           # production or development
 ```
 
+The variables are used as follows:
+
+| Variable | Purpose |
+|----------|---------|
+| `PORT` | Port where the server listens |
+| `FRONTEND_URL` | Allowed origin for CORS and cookies |
+| `APS_CLIENT_ID` / `APS_CLIENT_SECRET` | Autodesk OAuth credentials |
+| `REDIRECT_URI` | Callback URL configured in your APS app |
+| `ORDS_URL` | Base URL of Oracle ORDS service |
+| `ADMIN_PASSWORD` | Password for the ORDS admin account |
+| `ORDS_SCHEMA` | ORDS schema name (usually `admin`) |
+| `MONGODB_DATABASE_URL` | Connection string for MongoDB |
+| `GOOGLE_API_KEY` | API key for Google Generative AI |
+| `AUTODESK_BASE_URL` | Autodesk API base URL |
+| `NODE_ENV` | `development` or `production` mode |
+
 ## Obtaining Autodesk credentials
 
 1. Sign in at [Autodesk Developer Portal](https://aps.autodesk.com/).
@@ -61,6 +77,19 @@ npm start       # start without reloading
 
 The server will listen on `PORT` (default 3000).
 
+### Running with Docker
+
+This project does not include a Dockerfile, but you can run it in a container
+using the official Node image:
+
+```bash
+docker run --env-file .env -p 3000:3000 \
+  -v $(pwd):/app -w /app node:18 \
+  sh -c "npm install && npm start"
+```
+
+Adjust the image version and port mapping as needed.
+
 ## Main API endpoints
 
 | Endpoint | Method | Purpose |
@@ -86,4 +115,36 @@ The server will listen on `PORT` (default 3000).
 
 Most `/acc`, `/bim360` and `/datamanagement` routes require a valid Autodesk
 access token stored in the `access_token` cookie obtained via the login route.
+
+### Security features
+
+* **Authentication** – Autodesk OAuth tokens are used to protect most routes.
+* **Rate limiting** – different limits apply to authentication, read and write
+  operations to avoid abuse.
+* **CSRF protection** – the API issues a token from `/csrf-token` and validates
+  it for non-AI routes.
+
+### Running the tests
+
+The repository does not yet contain automated tests, but the script is wired so
+you can run:
+
+```bash
+npm test
+```
+
+and add your own test suites in the future.
+
+### Folder structure
+
+```
+├─ app.js              # Express application entry point
+├─ config/             # Database and environment helpers
+├─ const/              # Static configuration values
+├─ libs/               # Reusable libraries and APS helpers
+├─ openai/             # Google Generative AI integrations
+├─ resources/          # Express routers and controllers
+├─ utils/              # Utility functions
+└─ vercel.json         # Vercel deployment configuration
+```
 
