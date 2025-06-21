@@ -1,3 +1,4 @@
+const env = require('../../config/env.js');
 const express = require("express");
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -5,7 +6,7 @@ const getDb  = require("../../config/mongodb.js");
 const projectUsersSchema = require("../../resources/schemas/project.users.schema.js");
 const { sanitize } = require("../../libs/utils/sanitaze.db.js");
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY);
 const router = express.Router();
 
 router.post("/users", async (req, res) => {
@@ -17,6 +18,7 @@ router.post("/users", async (req, res) => {
 
   if (!process.env.GOOGLE_API_KEY) {
     return res.status(500).json({ data: null, error: 'Google API key not set', message: 'Google API key not set' });
+
   }
 
   try {

@@ -1,3 +1,4 @@
+const env = require("../config/env.js");
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
@@ -6,7 +7,7 @@ const { format } = require("morgan");
 const { fetchAllPaginatedResults } = require("../utils/pagination.libs");
 
 const GetUserbyUserId = async (userId, projectId, token) => {
-  const url = `https://developer.api.autodesk.com/construction/admin/v1/projects/${projectId}/users/${userId}`;
+  const url = `${env.AUTODESK_BASE_URL}/construction/admin/v1/projects/${projectId}/users/${userId}`;
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -31,7 +32,7 @@ const GetUserbyUserId = async (userId, projectId, token) => {
 };
 
 const GetIssueTypeName = async (projectId, token) => {
-  const url = `https://developer.api.autodesk.com/issues/v2/containers/${projectId}/issue-types`;
+  const url = `${env.AUTODESK_BASE_URL}/issues/v2/containers/${projectId}/issue-types`;
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -52,7 +53,7 @@ const GetIssueTypeName = async (projectId, token) => {
 };
 
 const GetIssueAttributeDefinitions = async (projectId, token) => {
-  const url = `https://developer.api.autodesk.com/issues/v2/containers/${projectId}/issue-attribute-definitions`;
+  const url = `${env.AUTODESK_BASE_URL}/issues/v2/containers/${projectId}/issue-attribute-definitions`;
 
   const headers = {
     Authorization: `Bearer ${token}`,

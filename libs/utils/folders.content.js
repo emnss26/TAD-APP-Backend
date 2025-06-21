@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const express =  require ('express');
 
 const axios = require('axios');
@@ -16,7 +17,7 @@ const  GetFolderContent = async (token, projectId, folderId) => {
 
     try {
         const { data: folderContent } = await axios.get(
-            `https://developer.api.autodesk.com/data/v1/projects/${projectId}/folders/${folderId}/contents`,
+            `${env.AUTODESK_BASE_URL}/data/v1/projects/${projectId}/folders/${folderId}/contents`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -66,7 +67,7 @@ const  GetFolderContent = async (token, projectId, folderId) => {
 
 const GetFileVersions = async (token, projectId, fileId) => {
     try {
-        const { data } = await axios.get(`https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${fileId}/versions`, {
+        const { data } = await axios.get(`${env.AUTODESK_BASE_URL}/data/v1/projects/${projectId}/items/${fileId}/versions`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

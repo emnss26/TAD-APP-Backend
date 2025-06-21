@@ -1,3 +1,4 @@
+const env = require("../../config/env.js");
 const axios = require("axios");
 const {
   GetFederatedModelFromFolders,
@@ -27,7 +28,7 @@ const GetFederatedModel = async (req, res) => {
 
   try {
     const { data: topFolders } = await axios.get(
-      `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
+      `${env.AUTODESK_BASE_URL}/project/v1/hubs/${accountId}/projects/${projectId}/topFolders`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -70,7 +71,7 @@ const GetFederatedModel = async (req, res) => {
     //console.log("Found file:", foundFile);
 
     const { data: versions } = await axios.get(
-      `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${foundFile.id}/versions`,
+      `${env.AUTODESK_BASE_URL}/data/v1/projects/${projectId}/items/${foundFile.id}/versions`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 

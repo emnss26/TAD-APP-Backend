@@ -1,6 +1,7 @@
+const env = require('../../config/env.js');
 const axios = require("axios");
 
-const fronend_url = process.env.FRONTEND_URL || "http://localhost:5173";
+const fronend_url = env.FRONTEND_URL || "http://localhost:5173";
 
 const GetUserStatus = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -12,7 +13,7 @@ const GetUserStatus = async (req, res) => {
   try {
  
     const { data: userData } = await axios.get(
-      "https://developer.api.autodesk.com/userprofile/v1/users/@me",
+      "${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me",
       {
         headers: {
           Authorization: `Bearer ${token}`,
