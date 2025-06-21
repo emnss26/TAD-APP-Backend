@@ -1,4 +1,4 @@
-const env = require("../../config/env.js");
+const env = require("../../config/index.js");
 const express =  require ('express');
 
 const axios = require('axios');

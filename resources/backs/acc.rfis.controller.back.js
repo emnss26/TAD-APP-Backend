@@ -1,4 +1,4 @@
-const env = require("../../config/env.js");
+const env = require("../../config/index.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 const { insertDocs, upsertDoc } = require("../../config/database.js");
