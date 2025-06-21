@@ -12,6 +12,7 @@ const env = {
   ORDS_SCHEMA: process.env.ORDS_SCHEMA,
   MONGODB_DATABASE_URL: process.env.MONGODB_DATABASE_URL,
   GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
+  BACKEND_BASE_URL: process.env.BACKEND_BASE_URL,
   NODE_ENV: process.env.NODE_ENV || 'development',
   AUTODESK_BASE_URL: process.env.AUTODESK_BASE_URL
 };
