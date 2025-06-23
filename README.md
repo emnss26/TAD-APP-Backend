@@ -31,6 +31,7 @@ MONGODB_DATABASE_URL=mongodb://localhost:27017/tad
 
 GOOGLE_API_KEY=<Google generative AI API key>
 AUTODESK_BASE_URL=https://developer.api.autodesk.com
+BACKEND_BASE_URL=http://localhost:3000
 NODE_ENV=development           # production or development
 ```
 

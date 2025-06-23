@@ -6,6 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const csurf = require('csurf');
+const path = require('path');
 
 require('./config/mongodb.js');
 
@@ -20,6 +21,9 @@ const app = express();
 app.disable('etag');
 app.disable("x-powered-by");
 app.set('trust proxy', 1);
+
+// Serve temporary GLB files
+app.use('/public/files', express.static(path.join(__dirname, 'public/files')));
 
 // Body parsers
 app.use(express.json({ limit: "250mb" }));

@@ -8,10 +8,12 @@ const { GetFileData } = require("./datamanagement.items.controller.js");
 const { GetFolderPermits } = require("./datamanagement.folder.permits.js");
 
 const { GetFileRevisionStatus } = require("./datamanagement.files.reviews.controller.js");
+const { GetIFCFederatedModel } = require("../../controllers/data_management/ifc.data.management.controller.js");
 
 const router = express.Router();
 
 router.get("/items/:accountId/:projectId/federatedmodel", GetFederatedModel);
+router.get("/items/:accountId/:projectId/federated-ifc", GetIFCFederatedModel);
 router.get("/folders/:accountId/:projectId/folder-structure", GetFoldersStructure);
 router.get("/folders/:accountId/:projectId/permissions", GetFolderPermits);
 
