@@ -1,4 +1,4 @@
-const env = require('./config/env.js');
+const env = require('./config/index.js');
 const express = require("express");
 const rateLimit = require('express-rate-limit');
 const morgan = require("morgan");
@@ -11,11 +11,7 @@ const path = require('path');
 require('./config/mongodb.js');
 
 const PORT = env.PORT;
-const allowedOrigins = [
-  env.FRONTEND_URL,
-  "http://localhost:5173",
-  "https://tad-app-fronend.vercel.app",
-];
+const allowedOrigins = env.ALLOWED_ORIGINS;
 
 const app = express();
 app.disable('etag');

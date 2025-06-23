@@ -2,6 +2,9 @@ const env = require("../../../config/index.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
+const { insertDocs, upsertDoc } = require("../../../config/database");
+const { batchUpsert } = require("../../../config/database.helper.js");
+
 const {
   GetIssueTypeName,
   GetIssueAttributeDefinitions,
@@ -17,10 +20,7 @@ const {
   enrichCustomAttributes,
 } = require("../../../libs/utils/attibute.mapper.libs.js");
 
-const  getDb  = require("../../../config/mongodb");
-const issuesSchema = require("../../schemas/issues.schema.js");
-
-const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
+const { validateIssue } = require("../../../config/database.schema.js");
 
 const GetIssues = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -101,66 +101,51 @@ const GetIssues = async (req, res) => {
       attributeValueMap
     );
 
-    const docs = issuesWithReadableAttributes.map((issue) => ({
-      _key: issue.id,
-      projectId: projectId,
-      accountId: accountId,
-      id: issue.id,
-      title: issue.title,
-      displayId: issue.displayId,
-      description: issue.description,
-      status: issue.status,
-      issueTypeName: issue.issueTypeName,
-      createdAt: issue.createdAt ? new Date(issue.createdAt) : null,
-      createdBy: issue.createdBy,
-      openBy: issue.openedBy,
-      assignedTo: issue.assignedTo,
-      closedBy: issue.closedBy,
-      dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
-      updatedAt: issue.updatedAt ? new Date(issue.updatedAt) : null,
-      updatedBy: issue.updatedBy,
-      closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
-    }));
+    //console.log("Issues with Readable Attributes:", issuesWithReadableAttributes);
 
-    //console.log("projectId:", projectId);
-    //console.log("accountId:", accountId);
+    // const docsToInsert = issuesWithReadableAttributes.map((issue) => ({
+    //   _key: issue.id,  
+    //   id: issue.id,
+    //   displayId: issue.displayId,
+    //   title: issue.title,
+    //   description: issue.description,
+    //   status: issue.status,
+    //   issueTypeName: issue.issueTypeName,
+    //   createdAt: new Date(issue.createdAt),
+    //   createdBy: issue.createdBy,
+    //   assignedTo: issue.assignedTo,
+    //   closedBy: issue.closedBy,
+    //   dueDate: issue.dueDate ? new Date(issue.dueDate) : null,
+    //   updatedAt: new Date(issue.updatedAt),
+    //   closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
+      
+    // }));
 
-    //console.log("issues", issuesWithReadableAttributes)
-    //console.log("issues length", issuesWithReadableAttributes.length)
+    // const validDocs = [];
+    // docsToInsert.forEach((doc, idx) => {
+    //   const ok = validateIssue(doc);
+    //   if (!ok) {
+    //     console.warn(
+    //       `Issue not valid in position ${idx}:`,
+    //       validateIssue.errors
+    //     );
+    //   } else {
+    //     validDocs.push(doc);
+    //   }
+    // });
 
-    const db = await getDb();
-    const safeAcc = sanitize(accountId);
-    const safeProj = sanitize(projectId);
-    const collName = `${safeAcc}_${safeProj}_issues`;
+    // if (validDocs.length === 0) {
+    //   return res.status(400).json({
+    //     data: null,
+    //     error: 'Not valied document finded',
+    //     message: 'Failed validation'
+    //   });
+    // }
 
-    const Issue = db.model("Issue", issuesSchema, collName);
-
-    const existing = await Issue.find(
-      { projectId },
-      { _key: 1, updatedAt: 1 }
-    ).lean();
-
-    const existingMap = existing.reduce((m, d) => {
-      m[d._key] = d.updatedAt?.getTime() || 0;
-      return m;
-    }, {});
-
-    const toUpsert = docs.filter((doc) => {
-      const prev = existingMap[doc._key] ?? 0;
-      return !prev || doc.updatedAt.getTime() > prev;
-    });
-
-    const ops = toUpsert.map((doc) => ({
-      updateOne: {
-        filter: { _key: doc._key, projectId: doc.projectId },
-        update: { $set: doc },
-        upsert: true,
-      },
-    }));
-
-    if (ops.length > 0) {
-    await Issue.bulkWrite(ops, { ordered: false });
-    }
+    // const collectionName = `${accountId}_${projectId}_issues`;
+    // //console.log(`Insertando ${docsToInsert.length} docs en ${collectionName}`);
+    // await batchUpsert(collectionName, validDocs, 20);
+    // //console.log(" Insert result:", insertResult);
 
     res.status(200).json({
       data: {

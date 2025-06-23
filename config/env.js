@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -18,3 +19,6 @@ const env = {
 };
 
 module.exports = env;
+=======
+module.exports = require('./index.js');
+>>>>>>> d1083e39aefad77b43d9bb1d390ac4badef69bc1
