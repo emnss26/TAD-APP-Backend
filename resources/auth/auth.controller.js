@@ -1,50 +1,39 @@
-const env = require('../../config/index.js');
+const env = require("../../config/index.js");
 const axios = require("axios");
+
 const {
-  GetAPSThreeLeggedToken,
-  GetAPSToken,
-} = require("../../libs/general/auth.libs");
+  getAPSThreeLeggedToken,
+} = require("../../libs/general/gen.auth.three.legged");
+const {
+  getAPSTwoLeggedToken,
+} = require("../../libs/general/gen.auth.two.legged");
 
-const fronend_url =
-  env.FRONTEND_URL || "http://localhost:5173";
+const frontend_url = env.FRONTEND_URL;
 
-  const GetThreeLegged = async (req, res) => {
-    const { code } = req.query;
-  
-    try {
-      const token = await GetAPSThreeLeggedToken(code);
-      // const { data: userData } = await axios.get(
-      //   `${env.AUTODESK_BASE_URL}/userprofile/v1/users/@me`,
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-      // const userEmail = userData.emailId;
-  
-      // if (
-      //   !approvedemails.approvedemails.some(u => u.email === userEmail)
-      // ) {
-      //   return res.redirect(`${fronend_url}/not-authorized`);
-      // }
-  
-   
-      res.cookie("access_token", token, {
-        maxAge: 3600000,
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        path: "/",
-      });
-  
-      return res.redirect(`${fronend_url}/platform`);
-  
-    } catch (error) {
-      console.error("Error en ThreeLegged:", error);
-      return res.redirect(`${fronend_url}/not-authorized`);
-    }
-  };
+const GetThreeLegged = async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    const token = await getAPSThreeLeggedToken(code);
+
+    res.cookie("access_token", token, {
+      maxAge: 3600000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/",
+    });
+
+    return res.redirect(`${frontend_url}/platform`);
+  } catch (error) {
+    console.error("Error en ThreeLegged:", error);
+    return res.redirect(`${frontend_url}/not-authorized`);
+  }
+};
 
 const GetToken = async (req, res) => {
   try {
-    const token = await GetAPSToken();
+    const token = await getAPSTwoLeggedToken();
     res.status(200).json({
       data: {
         access_token: token,

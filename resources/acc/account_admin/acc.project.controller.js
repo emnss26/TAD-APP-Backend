@@ -1,7 +1,6 @@
 const env = require("../../../config/index.js");
 const { default: axios } = require("axios");
-const { format } = require("morgan");
-const { AUTHORIZED_HUBS: authorizedHubs } = require("../../../config/index.js");
+const { getProjectData } = require("../../../libs/datamanagement/dm.get.project.js");
 
 const GetProject = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -17,16 +16,7 @@ const GetProject = async (req, res) => {
   }
 
   try {
-    const { data: projectdata } = await axios.get(
-      `${env.AUTODESK_BASE_URL}/project/v1/hubs/${accountId}/projects/${projectId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    //console.log("Project data", projectdata)
+    const projectdata = await getProjectData(token, accountId, projectId);
 
     res.status(200).json({
       data: {

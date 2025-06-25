@@ -1,7 +1,5 @@
 const env = require("../../config/index.js");
-const express = require("express");
 const axios = require("axios");
-const router = express.Router();
 
 const APS_CLIENT_ID = env.APS_CLIENT_ID;
 const APS_CLIENT_SECRET = env.APS_CLIENT_SECRET;

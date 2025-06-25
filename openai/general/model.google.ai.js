@@ -2,7 +2,7 @@ const env = require('../../config/index.js');
 
 const express = require('express');
 const {GoogleGenerativeAI} = require('@google/generative-ai');
-const getDb  = require("../../config/mongodb.js");
+const getDb  = require("../../config/Mongo_DB_Database/mongodb.js");
 const modeldatabaseSchema = require('../../resources/schemas/model.schema.js');
 const {sanitize} = require('../../libs/utils/sanitaze.db.js');
 

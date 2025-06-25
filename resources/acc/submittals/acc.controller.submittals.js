@@ -2,7 +2,7 @@ const env = require("../../../config/index.js");
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { GetSubmittalSpecId } = require("../../../libs/acc/acc.libs.js");
+const { getSubmittalSpecId } = require("../../../libs/acc/acc.get.submittal.spec.Id");
 
 const {
   mapUserIdsToNames,
@@ -11,7 +11,7 @@ const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
 
-const  getDb  = require("../../../config/mongodb");
+const  getDb  = require("../../../config/Mongo_DB_Database/mongodb.js");
 const submittalsschema = require("../../schemas/submittals.schema.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
@@ -95,7 +95,7 @@ const GetSubmittals = async (req, res) => {
 
         if (submittal.specId) {
           try {
-            submittal.specDetails = await GetSubmittalSpecId(
+            submittal.specDetails = await getSubmittalSpecId(
               projectId,
               submittal.specId,
               token
@@ -137,10 +137,6 @@ const GetSubmittals = async (req, res) => {
       updatedAt: submittal.updatedAt ? new Date(submittal.updatedAt) : null,
       updatedBy: submittal.updatedBy,
     }));
-
-    //console.log ("projectId:", projectId);
-    //console.log ("accountId:", accountId);
-    //console.log ("Submittals:", submittalsWithUserDetails);
 
     const db = await getDb();
     const safeAcc = sanitize(accountId);

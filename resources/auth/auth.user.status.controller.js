@@ -1,7 +1,7 @@
 const env = require('../../config/index.js');
 const axios = require("axios");
 
-const fronend_url = env.FRONTEND_URL || "http://localhost:5173";
+const frontend_url = env.FRONTEND_URL;
 
 const GetUserStatus = async (req, res) => {
   const token = req.cookies["access_token"];

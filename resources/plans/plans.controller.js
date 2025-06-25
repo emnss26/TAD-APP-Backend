@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const  getDb  = require("../../config/mongodb");
-const { validatePlansData } = require("../../config/database.schema");
+const  getDb  = require("../../config/Mongo_DB_Database/mongodb");
+const { validatePlansData } = require("../../config/Oracle_Database/database.schema");
 
 // Define a Mongoose schema for plans
 const plansSchema = new mongoose.Schema(

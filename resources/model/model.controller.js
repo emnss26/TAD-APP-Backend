@@ -1,6 +1,6 @@
-const modeldatabaseSchema = require("../../resources/schemas/model.schema");
-const getDb  = require("../../config/mongodb");
-const { validateModelData } = require("../../config/database.schema");
+const modeldatabaseSchema = require("../schemas/model.schema");
+const  getDb  = require("../../config/Mongo_DB_Database/mongodb");
+const { validateModelData } = require("../../config/Oracle_Database/database.schema");
 
 function getCollName(accountId, projectId) {
   const acc  = accountId.replace(/[^a-zA-Z0-9]/g, "_");

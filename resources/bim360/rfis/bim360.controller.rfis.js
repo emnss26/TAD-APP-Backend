@@ -9,7 +9,7 @@ const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
 
-const  getDb  = require("../../../config/mongodb");
+const  getDb  = require("../../../config/Mongo_DB_Database/mongodb.js");
 const rfiSchema = require("../../schemas/rfis.schema.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");

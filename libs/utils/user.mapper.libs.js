@@ -1,4 +1,4 @@
-const { GetUserbyUserId } = require("../acc/acc.libs");
+const { getUserByUserId } = require("../general/gen.get.user.by.id");
 
 const mapUserIdsToNames = async (items, projectId, token, userFields = []) => {
     
@@ -20,7 +20,7 @@ const mapUserIdsToNames = async (items, projectId, token, userFields = []) => {
   
     await Promise.all(uniqueUserIds.map(async userId => {
       try {
-        const user = await GetUserbyUserId(userId, projectId, token);
+        const user = await getUserByUserId(userId, projectId, token);
         const name = user?.name || `${user.firstName || ''} ${user.lastName || ''}`.trim();
         userMap[userId] = name || 'Unknown User';
       } catch {

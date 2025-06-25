@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const  getDb  = require("../../config/mongodb.js");
+const  getDb  = require("../../config/Mongo_DB_Database/mongodb");
 const taskSchema = require("../../resources/schemas/task.schema.js");
 
 // Generate the collection name based on account and project

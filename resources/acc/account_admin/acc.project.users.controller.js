@@ -3,7 +3,7 @@ const { default: axios } = require("axios");
 const { format } = require("morgan");
 
 const projectUsersSchema = require("../../schemas/project.users.schema.js");
-const  getDb  = require("../../../config/mongodb");
+const  getDb  = require("../../../config/Mongo_DB_Database/mongodb.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
 

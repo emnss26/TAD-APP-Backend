@@ -8,7 +8,7 @@ const helmet = require("helmet");
 const csurf = require('csurf');
 const path = require('path');
 
-require('./config/mongodb.js');
+require('./config/Mongo_DB_Database/mongodb.js');
 
 const PORT = env.PORT;
 const allowedOrigins = env.ALLOWED_ORIGINS;
@@ -17,6 +17,15 @@ const app = express();
 app.disable('etag');
 app.disable("x-powered-by");
 app.set('trust proxy', 1);
+
+app.use(
+  '/public/files',
+  cors({
+    origin: allowedOrigins || 'http://localhost:5173',
+    methods: ['GET', 'HEAD'],
+    credentials: false,
+  })
+);
 
 // Serve temporary GLB files
 app.use('/public/files', express.static(path.join(__dirname, 'public/files')));
@@ -69,6 +78,9 @@ app.use(
       connectSrc: [
         "'self'",
         env.AUTODESK_BASE_URL,
+        env.BACKEND_BASE_URL,
+        env.FRONTEND_URL,
+        "https://api.autodesk.com",
         "https://cdn.derivative.autodesk.com",
         "https://tad-app-backend.vercel.app",
         "https://tad-app-fronend.vercel.app",

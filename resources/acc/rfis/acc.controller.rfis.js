@@ -9,7 +9,7 @@ const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
 
-const  getDb  = require("../../../config/mongodb");
+const  getDb  = require("../../../config/Mongo_DB_Database/mongodb.js");
 const rfiSchema = require("../../schemas/rfis.schema.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
@@ -37,8 +37,6 @@ const GetRfis = async (req, res) => {
       token
     );
 
-    //console.log('RFIs data:', rfis);
-
     if (!Array.isArray(rfis) || rfis.length === 0) {
       return res.status(200).json({
         data: { rfis: [] },
@@ -58,8 +56,6 @@ const GetRfis = async (req, res) => {
     ];
     const userMap = await mapUserIdsToNames(rfis, projectId, token, userFields);
 
-    //console.log ('User Map:', userMap);
-
     const rfisdatawithnames = rfis.map((rfi) => {
       const disciplineName =
         Array.isArray(rfi.discipline) && rfi.discipline.length > 0
@@ -78,8 +74,6 @@ const GetRfis = async (req, res) => {
         discipline: disciplineName,
       };
     });
-
-    //console.log("RFIs with names:", rfisdatawithnames);
 
     const docs = rfisdatawithnames.map((rfi) => ({
       _key: rfi.id,
@@ -105,9 +99,6 @@ const GetRfis = async (req, res) => {
       closedAt: rfi.closedAt ? new Date(rfi.closedAt) : null,
       closedBy: rfi.closedBy,
     }));
-
-    //console.log ("projectId:", projectId);
-    //console.log ("accountId:", accountId);
 
     const db = await getDb();
     const safeAcc = sanitize(accountId);
@@ -141,10 +132,6 @@ const GetRfis = async (req, res) => {
     if (ops.length > 0) {
       await RFI.bulkWrite(ops, { ordered: false });
     }
-
-    //console.log("Insert result:", ops);
-    //console.log("RFIs with names:", rfisdatawithnames);
-    //console.log("→ usando MongoDB database:", db);
 
     res.status(200).json({
       data: {

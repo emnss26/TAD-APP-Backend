@@ -3,21 +3,28 @@ const { default: axios } = require("axios");
 const { format } = require("morgan");
 
 const {
-  GetIssueTypeName,
-  GetIssueAttributeDefinitions,
-} = require("../../../libs/acc/acc.libs.js");
+  getIssueTypeName,
+} = require("../../../libs/acc/acc.issue.type.name.js");
+
+const {
+  getIssueAttributeDefinitions,
+} = require("../../../libs/acc/acc.issue.attribute.definitions.js");
+
 const {
   mapUserIdsToNames,
 } = require("../../../libs/utils/user.mapper.libs.js");
+
 const {
   fetchAllPaginatedResults,
 } = require("../../../libs/utils/pagination.libs.js");
+
 const {
   buildCustomAttributeValueMap,
   enrichCustomAttributes,
 } = require("../../../libs/utils/attibute.mapper.libs.js");
 
-const  getDb  = require("../../../config/mongodb");
+const  getDb  = require("../../../config/Mongo_DB_Database/mongodb.js");
+
 const issuesSchema = require("../../schemas/issues.schema.js");
 
 const { sanitize } = require("../../../libs/utils/sanitaze.db.js");
@@ -53,7 +60,7 @@ const GetIssues = async (req, res) => {
       });
     }
 
-    const issuesTypeNameData = await GetIssueTypeName(projectId, token);
+    const issuesTypeNameData = await getIssueTypeName(projectId, token);
 
     const issueTypeMap = issuesTypeNameData.results.reduce((acc, type) => {
       acc[type.id] = type.title;
@@ -88,7 +95,7 @@ const GetIssues = async (req, res) => {
       ownerId: userMap[issue.ownerId] || "Unknown User",
     }));
 
-    const attrDef = await GetIssueAttributeDefinitions(projectId, token);
+    const attrDef = await getIssueAttributeDefinitions(projectId, token);
 
     //console.log ("Attribute Definitions:", attrDef.results[0]);
 
@@ -122,12 +129,6 @@ const GetIssues = async (req, res) => {
       closedAt: issue.closedAt ? new Date(issue.closedAt) : null,
     }));
 
-    //console.log ("projectId:", projectId);
-    //console.log ("accountId:", accountId);
-
-    //console.log("issues", issuesWithReadableAttributes)
-    //console.log("issues length", issuesWithReadableAttributes.length)
-
     const db = await getDb();
     const safeAcc = sanitize(accountId);
     const safeProj = sanitize(projectId);
@@ -159,9 +160,9 @@ const GetIssues = async (req, res) => {
     }));
 
     if (ops.length > 0) {
-    await Issue.bulkWrite(ops, { ordered: false });
+      await Issue.bulkWrite(ops, { ordered: false });
     }
-    
+
     res.status(200).json({
       data: {
         issues: issuesWithReadableAttributes,
