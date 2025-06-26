@@ -8,6 +8,10 @@ module.exports ={
             email:'administracion@mloestructural.com',
             name:'Administracion MLO Estructural',
         },
+        {
+            email:'jlalvarezbarajas@mloestructural.com',
+            name:'Juan Luis Alvarez Barajas',
+        },
     ]
 
 }
