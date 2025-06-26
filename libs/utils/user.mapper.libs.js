@@ -20,7 +20,7 @@ const mapUserIdsToNames = async (items, projectId, token, userFields = []) => {
   
     await Promise.all(uniqueUserIds.map(async userId => {
       try {
-        const user = await getUserByUserId(userId, projectId, token);
+        const user = await getUserByUserId(token, projectId, userId);
         const name = user?.name || `${user.firstName || ''} ${user.lastName || ''}`.trim();
         userMap[userId] = name || 'Unknown User';
       } catch {

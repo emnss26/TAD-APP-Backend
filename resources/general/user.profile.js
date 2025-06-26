@@ -18,6 +18,7 @@ const GetUserProfile = async (req, res) => {
       }
     );
 
+    //console.log("User profile fetched successfully:", response.data);
     return res.status(200).json({
       user: response.data,
       error: null,

@@ -4,6 +4,8 @@ const axios = require("axios");
 const validateAutodeskToken = async (req, res, next) => {
   const token = req.cookies["access_token"];
 
+  //console.log("Validating Autodesk token:", token);
+
   if (!token) {
     return res.status(401).json({ data: null, error: 'Unauthorized', message: 'Unauthorized' });
   }
@@ -15,6 +17,8 @@ const validateAutodeskToken = async (req, res, next) => {
     );
 
     req.user = data;
+
+    //console.log("Autodesk token validated successfully:", data);
     next();
   } catch (err) {
     res.status(401).json({ data: null, error: 'Invalid token', message: 'Invalid token' });

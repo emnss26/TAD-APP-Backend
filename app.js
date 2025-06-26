@@ -122,7 +122,8 @@ app.use((req, res, next) => {
     req.path.startsWith('/datamanagement') ||
     req.path.startsWith('/plans') ||
     req.path.startsWith('/task') ||
-    req.path.startsWith('/modeldata') 
+    req.path.startsWith('/modeldata')  ||
+    req.path.startsWith('/model-checker')
   ) {
     return next();
   }
@@ -165,6 +166,9 @@ app.use("/datamanagement", validateAutodeskToken, require("./resources/datamanag
 app.use('/modeldata', require("./resources/model/model.router.js"));
 app.use('/plans', require("./resources/plans/plans.router.js"));
 app.use('/task', require("./resources/task/task.router.js"));
+app.use('/model-checker', require("./resources/model_checker/model.checker.router.js"));
+
+// AI endpoints
 app.use('/ai-users', require("./openai/general/users.google.ai.js"));
 app.use('/ai-issues', require("./openai/general/issues.google.ai.js"));
 app.use('/ai-submittals', require("./openai/general/submittals.google.ai.js"));
