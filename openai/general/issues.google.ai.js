@@ -137,7 +137,7 @@ Please respond clearly in English and concisely to the following question: ${mes
     // console.log("Prompt being sent to AI:", fullPrompt); // Uncomment to debug the full prompt
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-2.5-flash",
     });
     const generationConfig = { temperature: 0.2 };
 

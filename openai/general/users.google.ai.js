@@ -112,7 +112,7 @@ router.post("/users", async (req, res) => {
     `;
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-2.5-flash",
     });
 
     const generationConfig = {
@@ -125,6 +125,8 @@ router.post("/users", async (req, res) => {
   }   );
     const response = await result.response;
     const reply = response.text();
+
+    console.log("Google AI response:", reply);
 
     if (!reply) {
       console.warn(

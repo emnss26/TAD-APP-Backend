@@ -69,7 +69,7 @@ QUESTION: ${message}
 `.trim();
 
     const result = await genAI
-      .getGenerativeModel({ model: "gemini-1.5-flash-latest" })
+      .getGenerativeModel({ model: "gemini-2.5-flash" })
       .generateContent({
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.2 },
